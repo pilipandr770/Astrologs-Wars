@@ -2,7 +2,6 @@
 
 from flask import Blueprint, render_template, redirect, url_for, abort, g, session, current_app
 from app.models import Block, PaymentMethod, Settings, Category, Product
-from app.models import Token, Airdrop, TokenSale, DaoProposal
 from app import db
 
 main = Blueprint('main', __name__)
@@ -74,97 +73,6 @@ def get_product_description(product):
         return product.description_ru or product.description
     return product.description
 
-def get_token_description(token):
-    """Получает описание токена в текущем языке"""
-    lang = g.get('lang', session.get('lang', 'uk'))
-    if lang == 'uk':
-        return token.description_ua or token.description
-    elif lang == 'en':
-        return token.description_en or token.description
-    elif lang == 'de':
-        return token.description_de or token.description
-    elif lang == 'ru':
-        return token.description_ru or token.description
-    return token.description
-
-def get_airdrop_title(airdrop):
-    """Получает заголовок аирдропа в текущем языке"""
-    lang = g.get('lang', session.get('lang', 'uk'))
-    if lang == 'uk':
-        return airdrop.title_ua or airdrop.title
-    elif lang == 'en':
-        return airdrop.title_en or airdrop.title
-    elif lang == 'de':
-        return airdrop.title_de or airdrop.title
-    elif lang == 'ru':
-        return airdrop.title_ru or airdrop.title
-    return airdrop.title
-
-def get_airdrop_description(airdrop):
-    """Получает описание аирдропа в текущем языке"""
-    lang = g.get('lang', session.get('lang', 'uk'))
-    if lang == 'uk':
-        return airdrop.description_ua or airdrop.description
-    elif lang == 'en':
-        return airdrop.description_en or airdrop.description
-    elif lang == 'de':
-        return airdrop.description_de or airdrop.description
-    elif lang == 'ru':
-        return airdrop.description_ru or airdrop.description
-    return airdrop.description
-
-def get_token_sale_title(token_sale):
-    """Получает заголовок токенсейла в текущем языке"""
-    lang = g.get('lang', session.get('lang', 'uk'))
-    if lang == 'uk':
-        return token_sale.title_ua or token_sale.title
-    elif lang == 'en':
-        return token_sale.title_en or token_sale.title
-    elif lang == 'de':
-        return token_sale.title_de or token_sale.title
-    elif lang == 'ru':
-        return token_sale.title_ru or token_sale.title
-    return token_sale.title
-
-def get_token_sale_description(token_sale):
-    """Получает описание токенсейла в текущем языке"""
-    lang = g.get('lang', session.get('lang', 'uk'))
-    if lang == 'uk':
-        return token_sale.description_ua or token_sale.description
-    elif lang == 'en':
-        return token_sale.description_en or token_sale.description
-    elif lang == 'de':
-        return token_sale.description_de or token_sale.description
-    elif lang == 'ru':
-        return token_sale.description_ru or token_sale.description
-    return token_sale.description
-
-def get_dao_proposal_title(proposal):
-    """Получает заголовок предложения DAO в текущем языке"""
-    lang = g.get('lang', session.get('lang', 'uk'))
-    if lang == 'uk':
-        return proposal.title_ua or proposal.title
-    elif lang == 'en':
-        return proposal.title_en or proposal.title
-    elif lang == 'de':
-        return proposal.title_de or proposal.title
-    elif lang == 'ru':
-        return proposal.title_ru or proposal.title
-    return proposal.title
-
-def get_dao_proposal_description(proposal):
-    """Получает описание предложения DAO в текущем языке"""
-    lang = g.get('lang', session.get('lang', 'uk'))
-    if lang == 'uk':
-        return proposal.description_ua or proposal.description
-    elif lang == 'en':
-        return proposal.description_en or proposal.description
-    elif lang == 'de':
-        return proposal.description_de or proposal.description
-    elif lang == 'ru':
-        return proposal.description_ru or proposal.description
-    return proposal.description
-
 # Эти функции больше не используются напрямую, так как они импортируются из app.blog.routes.
 # Их определения были перемещены туда и переименованы в get_blog_block_*
 # Эти определения оставлены для обратной совместимости.
@@ -209,22 +117,22 @@ def get_blog_block_summary(block):
 
 @main.route('/')
 def index():
-    """Головна сторінка з блоками"""
+    """Головна сторінка з блоками різних астрологічних систем"""
     blocks = Block.query.filter_by(is_active=True).order_by(Block.order).all()
     methods = PaymentMethod.query.filter_by(is_active=True).order_by(PaymentMethod.order).all()
     settings = Settings.query.first()
-    token = Token.query.first()  # Получаем информацию о токене
-    bots_category = Category.query.filter(Category.name.ilike('%бот%')).first()
-    bots_products = Product.query.filter_by(category_id=bots_category.id, is_active=True).order_by(Product.created_at.desc()).limit(3).all() if bots_category else []
     
-    # Получаем активные блоки блога
+  # Получаем активные блоки блога
     from app.models import BlogBlock
     from app.blog.routes import get_blog_block_title, get_blog_block_summary, get_blog_block_content
+      # Получаем 7 блоков блога для разных астрологических систем
+    recent_blog_blocks = BlogBlock.query.filter_by(is_active=True).order_by(BlogBlock.position).limit(7).all()
     
-    recent_blog_blocks = BlogBlock.query.filter_by(is_active=True).order_by(BlogBlock.position).limit(3).all()
-    
-    return render_template('index.html', blocks=blocks, methods=methods, settings=settings, token=token, 
-                           bots_products=bots_products, recent_blog_blocks=recent_blog_blocks,
+    # Обязательно передаем все вспомогательные функции для локализации
+    return render_template('index.html.new', blocks=blocks, methods=methods, settings=settings, 
+                           recent_blog_blocks=recent_blog_blocks,
+                           get_block_title=get_block_title,
+                           get_block_content=get_block_content,
                            get_blog_block_title=get_blog_block_title,
                            get_blog_block_content=get_blog_block_content,
                            get_blog_block_summary=get_blog_block_summary)
@@ -239,12 +147,7 @@ def block_detail(slug):
 def payment():
     """Сторінка з усіма методами оплати"""
     methods = PaymentMethod.query.filter_by(is_active=True).order_by(PaymentMethod.order).all()
-    token_contract_address = current_app.config.get('TOKEN_CONTRACT_ADDRESS')
-    token_receiver_address = current_app.config.get('TOKEN_RECEIVER_ADDRESS')
-    return render_template('payment.html', methods=methods, config={
-        'TOKEN_CONTRACT_ADDRESS': token_contract_address,
-        'TOKEN_RECEIVER_ADDRESS': token_receiver_address
-    })
+    return render_template('payment.html', methods=methods)
 
 @main.route('/privacy')
 def privacy():

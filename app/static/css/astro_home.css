@@ -1,0 +1,256 @@
+/* Стили для обновленной главной страницы с фокусом на разные астрологические системы */
+
+/* Общий контейнер для блоков */
+.astro-blocks-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+/* Главный блок на всю ширину */
+.main-astro-block {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #2c3e50 0%, #4c6ea0 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(44, 62, 80, 0.3);
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.main-astro-block::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/static/img/cosmic_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.main-astro-block > * {
+    position: relative;
+    z-index: 1;
+}
+
+.main-astro-block h2 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.main-astro-block p {
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Блоки астрологических систем */
+.astro-system-block {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.astro-system-block:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+}
+
+.astro-system-header {
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: white;
+    position: relative;
+}
+
+/* Уникальные цвета для каждой астрологической системы */
+.european { background: linear-gradient(135deg, #5e72e4 0%, #324cdd 100%); }
+.chinese { background: linear-gradient(135deg, #f5365c 0%, #c81e45 100%); }
+.indian { background: linear-gradient(135deg, #fb6340 0%, #df3311 100%); }
+.lal-kitab { background: linear-gradient(135deg, #ffd600 0%, #e6b500 100%); color: #333 !important; }
+.jyotish { background: linear-gradient(135deg, #2dce89 0%, #24a46d 100%); }
+.numerology { background: linear-gradient(135deg, #11cdef 0%, #0099ab 100%); }
+.tarot { background: linear-gradient(135deg, #8965e0 0%, #6038bf 100%); }
+
+.astro-system-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.astro-system-content h3 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.astro-system-content p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.astro-date {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 15px;
+}
+
+.astro-system-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: auto;
+}
+
+.astro-rating {
+    color: #FFD700;
+    font-size: 1rem;
+}
+
+.astro-votes {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.read-more-btn {
+    background: transparent;
+    border: 1px solid #ddd;
+    padding: 8px 15px;
+    border-radius: 30px;
+    color: #555;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.read-more-btn:hover {
+    background: #f8f9fa;
+    color: #333;
+}
+
+/* Блок для заказа персональных прогнозов */
+.personal-order-block {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #6a3093 0%, #a044ff 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(106, 48, 147, 0.4);
+    text-align: center;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.personal-order-block::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/static/img/stars_bg.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.2;
+    z-index: 0;
+}
+
+.personal-order-block > * {
+    position: relative;
+    z-index: 1;
+}
+
+.personal-order-block h3 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.personal-order-block p {
+    max-width: 700px;
+    margin: 0 auto 25px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.order-btn {
+    background: white;
+    color: #6a3093;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+    margin-top: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.order-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+    background: #f8f8f8;
+}
+
+/* Адаптивный дизайн */
+@media (max-width: 768px) {
+    .astro-blocks-container {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+    
+    .main-astro-block h2 {
+        font-size: 1.8rem;
+    }
+    
+    .main-astro-block p {
+        font-size: 1rem;
+    }
+}
+
+/* Анимации для оценок */
+.pulse {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}

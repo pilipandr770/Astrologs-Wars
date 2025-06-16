@@ -6,9 +6,9 @@
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>Управление продуктами</h1>
+                <h1>Управление астрологическими прогнозами</h1>
                 <a href="{{ url_for('admin.product_new') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Добавить продукт
+                    <i class="fas fa-plus"></i> Добавить прогноз
                 </a>
             </div>        </div>
     </div>
@@ -27,12 +27,11 @@
                 <div class="card-body">
                     {% if products %}
                     <div class="table-responsive">
-                        <table class="table table-hover">"
-                <thead>
+                        <table class="table table-hover">"                <thead>
                     <tr>
                         <th>Изображение</th>
-                        <th>Название</th>
-                        <th>Категория</th>
+                        <th>Название прогноза</th>
+                        <th>Тип</th>
                         <th>Цена</th>
                         <th>Статус</th>
                         <th>Создан</th>

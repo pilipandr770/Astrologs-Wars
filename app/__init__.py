@@ -77,14 +77,12 @@ def create_app():
     from app.main.routes import main
     from app.admin.routes import admin
     from app.shop.routes import shop
-    from app.blockchain.routes import blockchain
     from .assist import assist_bp
     from .blog import blog_bp
     from .blog_automation import blog_automation_bp
     app.register_blueprint(main)
     app.register_blueprint(admin, url_prefix='/admin')
     app.register_blueprint(shop)
-    app.register_blueprint(blockchain)
     app.register_blueprint(assist_bp)
     app.register_blueprint(blog_bp, url_prefix='/blog')
     app.register_blueprint(blog_automation_bp)
@@ -92,9 +90,7 @@ def create_app():
     # Регистрируем template helper функции как глобальные в Jinja2
     from app.main.routes import (
         get_block_title, get_block_content, get_category_name, get_product_name, 
-        get_product_description, get_token_description, get_airdrop_title, 
-        get_airdrop_description, get_token_sale_title, get_token_sale_description,
-        get_dao_proposal_title, get_dao_proposal_description
+        get_product_description
     )
     
     app.jinja_env.globals.update(
@@ -102,14 +98,7 @@ def create_app():
         get_block_content=get_block_content,
         get_category_name=get_category_name,
         get_product_name=get_product_name,
-        get_product_description=get_product_description,
-        get_token_description=get_token_description,
-        get_airdrop_title=get_airdrop_title,
-        get_airdrop_description=get_airdrop_description,
-        get_token_sale_title=get_token_sale_title,
-        get_token_sale_description=get_token_sale_description,
-        get_dao_proposal_title=get_dao_proposal_title,
-        get_dao_proposal_description=get_dao_proposal_description
+        get_product_description=get_product_description
     )
 
     return app

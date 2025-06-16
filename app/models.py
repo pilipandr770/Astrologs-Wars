@@ -113,7 +113,7 @@ class Product(db.Model):
     description = db.Column(db.Text)
     image = db.Column(db.String(256))
     price = db.Column(db.Float)
-    token_price = db.Column(db.Float)  # Цена в токенах
+    token_price = db.Column(db.Float)  # Оставляем для совместимости с БД, но не используем
     is_digital = db.Column(db.Boolean, default=True)
     is_active = db.Column(db.Boolean, default=True)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
@@ -179,10 +179,8 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     status = db.Column(db.String(32), default='pending')  # pending, paid, processing, completed, cancelled
     total_price = db.Column(db.Float)
-    total_token_price = db.Column(db.Float)  # Цена в токенах
-    payment_type = db.Column(db.String(32))  # fiat или token
+    payment_type = db.Column(db.String(32))  # теперь всегда 'fiat'
     payment_id = db.Column(db.Integer, db.ForeignKey('payment.id'), nullable=True)
-    tx_hash = db.Column(db.String(66), nullable=True)  # Хеш транзакции при оплате токенами
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_at = db.Column(db.DateTime, nullable=True)
     user = db.relationship('User', backref='orders')
@@ -199,7 +197,6 @@ class OrderItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     quantity = db.Column(db.Integer, default=1)
     price = db.Column(db.Float)  # Цена на момент покупки
-    token_price = db.Column(db.Float)  # Цена в токенах на момент покупки
     product = db.relationship('Product')
 
 class Token(db.Model):

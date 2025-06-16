@@ -1,0 +1,166 @@
+/* Стили для административной панели астрологического сайта */
+.admin-page {
+    background-color: #1a1a2e;
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.admin-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/static/img/stars_bg.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.1;
+    z-index: 0;
+    border-radius: 10px;
+}
+
+.admin-page > * {
+    position: relative;
+    z-index: 1;
+}
+
+.admin-page h1, .admin-page h2, .admin-page h3 {
+    color: #a044ff;
+    margin-bottom: 20px;
+}
+
+.admin-page .card {
+    background-color: #292f4c;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.admin-page .card-header {
+    border-radius: 10px 10px 0 0;
+    padding: 12px 20px;
+}
+
+.admin-page .list-group-item {
+    background-color: #232444;
+    color: #fff;
+    border-color: #373b69;
+}
+
+.admin-page .list-group-item:hover {
+    background-color: #373b69;
+}
+
+.admin-page .list-group-item-action {
+    color: #b0b0d0;
+}
+
+.admin-page .list-group-item-action:hover {
+    color: #fff;
+}
+
+.admin-page .table {
+    color: #fff;
+}
+
+.admin-page .table thead th {
+    border-bottom: 2px solid #373b69;
+    color: #a044ff;
+}
+
+.admin-page .table td, .admin-page .table th {
+    border-top: 1px solid #373b69;
+}
+
+.admin-page .table-hover tbody tr:hover {
+    background-color: rgba(160, 68, 255, 0.1);
+}
+
+.admin-page .btn-primary {
+    background: linear-gradient(135deg, #6a3093 0%, #a044ff 100%);
+    border: none;
+}
+
+.admin-page .btn-primary:hover {
+    background: linear-gradient(135deg, #7d39ab 0%, #b35eff 100%);
+    box-shadow: 0 5px 15px rgba(106, 48, 147, 0.3);
+}
+
+.admin-page .btn-secondary {
+    background-color: #444b6e;
+    border: none;
+}
+
+.admin-page .btn-secondary:hover {
+    background-color: #555c80;
+}
+
+.admin-page .form-control, 
+.admin-page .form-select {
+    background-color: #232444;
+    border-color: #373b69;
+    color: #fff;
+}
+
+.admin-page .form-control:focus, 
+.admin-page .form-select:focus {
+    background-color: #232444;
+    border-color: #a044ff;
+    box-shadow: 0 0 0 0.25rem rgba(160, 68, 255, 0.25);
+    color: #fff;
+}
+
+.admin-page .form-label {
+    color: #b0b0d0;
+}
+
+.admin-page .form-text {
+    color: #8085a5;
+}
+
+.admin-page .nav-tabs .nav-link {
+    color: #b0b0d0;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+.admin-page .nav-tabs .nav-link.active {
+    color: #a044ff;
+    background-color: transparent;
+    border-bottom: 2px solid #a044ff;
+}
+
+.admin-page .bg-primary {
+    background: linear-gradient(135deg, #6a3093 0%, #a044ff 100%) !important;
+}
+
+.admin-page .bg-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+}
+
+.admin-page .bg-info {
+    background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%) !important;
+}
+
+.admin-page .bg-warning {
+    background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%) !important;
+}
+
+.admin-page .bg-danger {
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%) !important;
+}
+
+/* Специальные стили для астрологических категорий */
+.astro-category-icon {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    margin-right: 10px;
+    vertical-align: middle;
+}

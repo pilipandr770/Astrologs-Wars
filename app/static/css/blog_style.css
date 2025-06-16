@@ -1,0 +1,225 @@
+/* app/static/css/blog_style.css */
+
+.blog-featured {
+    margin-bottom: 2.5rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transition: transform 0.3s ease;
+}
+
+.blog-featured:hover {
+    transform: translateY(-5px);
+}
+
+.blog-featured .card-title {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+}
+
+.blog-featured .featured-image {
+    height: 350px;
+    overflow: hidden;
+}
+
+.blog-featured img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.blog-featured:hover img {
+    transform: scale(1.05);
+}
+
+/* Стили для карточек блога */
+.blog-card {
+    height: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(0,0,0,0.08);
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.blog-card .card-img-top {
+    height: 180px;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.blog-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.blog-card .card-body {
+    padding: 1.2rem;
+}
+
+.blog-card .card-title {
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.blog-card .card-text {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.blog-date {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 1rem;
+}
+
+/* Стили для страницы деталей блога */
+.blog-detail-header {
+    position: relative;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.blog-detail-featured {
+    max-height: 500px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.blog-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #333;
+}
+
+.blog-content p {
+    margin-bottom: 1.5rem;
+}
+
+.blog-content h2 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.blog-related {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.blog-related h3 {
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+/* Адаптивные стили для блога */
+@media (max-width: 992px) {
+    .blog-featured .featured-image {
+        height: 280px;
+    }
+    
+    .blog-featured .card-title {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .blog-featured .featured-image {
+        height: 220px;
+    }
+    
+    .blog-featured .card-title {
+        font-size: 1.3rem;
+    }
+    
+    .blog-card .card-img-top {
+        height: 160px;
+    }
+}
+
+/* Анимация для блогов */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.blog-animation {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.blog-animation-delay-1 {
+    animation-delay: 0.1s;
+}
+
+.blog-animation-delay-2 {
+    animation-delay: 0.2s;
+}
+
+.blog-animation-delay-3 {
+    animation-delay: 0.3s;
+}
+
+/* Улучшения для блока недавних статей на главной */
+.recent-blog-posts {
+    margin-bottom: 1.5rem;
+}
+
+.recent-post {
+    display: flex;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.post-image {
+    width: 120px;
+    height: 120px;
+    margin-right: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.recent-post:hover .post-image img {
+    transform: scale(1.1);
+}
+
+.post-info {
+    flex: 1;
+}
+
+.post-info h4 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.post-summary {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}

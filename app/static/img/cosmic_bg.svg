@@ -1,0 +1,130 @@
+/* Код для создания фонового изображения космоса в SVG формате */
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <rect width="100%" height="100%" fill="#0B0B22"/>
+  <filter id='noiseFilter'>
+    <feTurbulence 
+      type='fractalNoise' 
+      baseFrequency='0.65' 
+      numOctaves='3' 
+      stitchTiles='stitch'/>
+    <feColorMatrix
+      values='1 0 0 0 0
+              0 1 0 0 0
+              0 0 1 0 0
+              0 0 0 0.5 0' />
+    <feBlend mode='overlay'/>
+  </filter>
+  
+  <rect width="100%" height="100%" filter="url(#noiseFilter)" opacity="0.4"/>
+  
+  <g id="stars">
+    <!-- Small stars -->
+    <g fill="#FFFFFF">
+      <!-- Randomly positioned small stars -->
+      <circle cx="150" cy="150" r="1"/>
+      <circle cx="550" cy="250" r="1.2"/>
+      <circle cx="950" cy="350" r="0.8"/>
+      <circle cx="1350" cy="450" r="1"/>
+      <circle cx="1750" cy="550" r="1.3"/>
+      <circle cx="250" cy="650" r="0.9"/>
+      <circle cx="650" cy="750" r="1.1"/>
+      <circle cx="1050" cy="850" r="1.2"/>
+      <circle cx="1450" cy="950" r="0.7"/>
+      <circle cx="200" cy="100" r="1.2"/>
+      <circle cx="400" cy="200" r="0.8"/>
+      <circle cx="600" cy="300" r="1.1"/>
+      <circle cx="800" cy="400" r="0.9"/>
+      <circle cx="1000" cy="500" r="1.3"/>
+      <circle cx="1200" cy="600" r="0.7"/>
+      <circle cx="1400" cy="700" r="1"/>
+      <circle cx="1600" cy="800" r="1.2"/>
+      <circle cx="1800" cy="900" r="0.9"/>
+      <circle cx="300" cy="120" r="0.9"/>
+      <circle cx="700" cy="220" r="1.3"/>
+      <circle cx="1100" cy="320" r="0.8"/>
+      <circle cx="1500" cy="420" r="1.1"/>
+      <circle cx="350" cy="520" r="1.2"/>
+      <circle cx="750" cy="620" r="0.7"/>
+      <circle cx="1150" cy="720" r="1"/>
+      <circle cx="1550" cy="820" r="0.9"/>
+      <circle cx="100" cy="920" r="1.3"/>
+    </g>
+    <!-- Medium stars -->
+    <g fill="#FFFFFF">
+      <circle cx="480" cy="180" r="1.8"/>
+      <circle cx="980" cy="280" r="1.5"/>
+      <circle cx="1380" cy="380" r="1.6"/>
+      <circle cx="320" cy="480" r="1.8"/>
+      <circle cx="720" cy="580" r="1.5"/>
+      <circle cx="1120" cy="680" r="1.7"/>
+      <circle cx="1520" cy="780" r="1.6"/>
+      <circle cx="240" cy="880" r="1.8"/>
+      <circle cx="1640" cy="180" r="1.7"/>
+      <circle cx="400" cy="280" r="1.5"/>
+      <circle cx="800" cy="380" r="1.8"/>
+      <circle cx="1200" cy="480" r="1.6"/>
+      <circle cx="1600" cy="580" r="1.7"/>
+      <circle cx="160" cy="680" r="1.5"/>
+      <circle cx="560" cy="780" r="1.8"/>
+      <circle cx="960" cy="880" r="1.6"/>
+      <circle cx="1360" cy="980" r="1.7"/>
+      <circle cx="1760" cy="200" r="1.5"/>
+    </g>
+    <!-- Large bright stars with glow -->
+    <g>
+      <circle cx="600" cy="150" r="2.5" fill="#FFFFFF"/>
+      <circle cx="600" cy="150" r="4" fill="none" stroke="#FFFFFF" stroke-width="0.5" opacity="0.5"/>
+      <circle cx="600" cy="150" r="6" fill="none" stroke="#FFFFFF" stroke-width="0.3" opacity="0.3"/>
+      
+      <circle cx="1200" cy="300" r="3" fill="#FFFFFF"/>
+      <circle cx="1200" cy="300" r="5" fill="none" stroke="#FFFFFF" stroke-width="0.5" opacity="0.5"/>
+      <circle cx="1200" cy="300" r="7" fill="none" stroke="#FFFFFF" stroke-width="0.3" opacity="0.3"/>
+      
+      <circle cx="300" cy="700" r="2.8" fill="#FFFFFF"/>
+      <circle cx="300" cy="700" r="4.5" fill="none" stroke="#FFFFFF" stroke-width="0.5" opacity="0.5"/>
+      <circle cx="300" cy="700" r="6.5" fill="none" stroke="#FFFFFF" stroke-width="0.3" opacity="0.3"/>
+      
+      <circle cx="1500" cy="600" r="3.2" fill="#FFFFFF"/>
+      <circle cx="1500" cy="600" r="5.5" fill="none" stroke="#FFFFFF" stroke-width="0.5" opacity="0.5"/>
+      <circle cx="1500" cy="600" r="8" fill="none" stroke="#FFFFFF" stroke-width="0.3" opacity="0.3"/>
+      
+      <circle cx="900" cy="900" r="2.7" fill="#FFFFFF"/>
+      <circle cx="900" cy="900" r="4.2" fill="none" stroke="#FFFFFF" stroke-width="0.5" opacity="0.5"/>
+      <circle cx="900" cy="900" r="6.2" fill="none" stroke="#FFFFFF" stroke-width="0.3" opacity="0.3"/>
+    </g>
+    <!-- Colorful stars -->
+    <g>
+      <circle cx="200" cy="200" r="2" fill="#77BBFF"/>
+      <circle cx="200" cy="200" r="3.5" fill="none" stroke="#77BBFF" stroke-width="0.4" opacity="0.4"/>
+      
+      <circle cx="1400" cy="240" r="2.2" fill="#FFAA77"/>
+      <circle cx="1400" cy="240" r="3.8" fill="none" stroke="#FFAA77" stroke-width="0.4" opacity="0.4"/>
+      
+      <circle cx="600" cy="750" r="1.8" fill="#A088FF"/>
+      <circle cx="600" cy="750" r="3" fill="none" stroke="#A088FF" stroke-width="0.4" opacity="0.4"/>
+      
+      <circle cx="1700" cy="650" r="2.3" fill="#FF8877"/>
+      <circle cx="1700" cy="650" r="4" fill="none" stroke="#FF8877" stroke-width="0.4" opacity="0.4"/>
+    </g>
+    <!-- Nebula-like effects -->
+    <g opacity="0.15">
+      <radialGradient id="nebula1" cx="400" cy="400" r="300" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#7B68EE"/>
+        <stop offset="100%" stop-color="#0B0B22" stop-opacity="0"/>
+      </radialGradient>
+      <circle cx="400" cy="400" r="300" fill="url(#nebula1)"/>
+      
+      <radialGradient id="nebula2" cx="1600" cy="350" r="250" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#FF6347"/>
+        <stop offset="100%" stop-color="#0B0B22" stop-opacity="0"/>
+      </radialGradient>
+      <circle cx="1600" cy="350" r="250" fill="url(#nebula2)"/>
+      
+      <radialGradient id="nebula3" cx="1000" cy="700" r="350" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#4682B4"/>
+        <stop offset="100%" stop-color="#0B0B22" stop-opacity="0"/>
+      </radialGradient>
+      <circle cx="1000" cy="700" r="350" fill="url(#nebula3)"/>
+    </g>
+  </g>
+</svg>
