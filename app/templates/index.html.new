@@ -34,10 +34,9 @@
       </p>
     {% endif %}
   </div>
-
   {# --- Астрологические системы-блоки --- #}
   {% for block in recent_blog_blocks %}
-    {% set system_class = ['european', 'chinese', 'indian', 'lal-kitab', 'jyotish', 'numerology', 'tarot'][loop.index0 % 7] %}
+    {% set system_class = ['european', 'chinese', 'indian', 'lal-kitab', 'jyotish', 'numerology', 'tarot', 'planetary'][loop.index0 % 8] %}
     <div class="astro-system-block">
       <div class="astro-system-header {{ system_class }}">
         {% if system_class == 'european' %}
@@ -49,11 +48,12 @@
         {% elif system_class == 'lal-kitab' %}
           {{ _('Лал Кітаб') }}
         {% elif system_class == 'jyotish' %}
-          {{ _('Джйотіш') }}
-        {% elif system_class == 'numerology' %}
+          {{ _('Джйотіш') }}        {% elif system_class == 'numerology' %}
           {{ _('Нумерологія') }}
         {% elif system_class == 'tarot' %}
           {{ _('Таро') }}
+        {% elif system_class == 'planetary' %}
+          {{ _('Планетарна астрологія') }}
         {% endif %}
       </div>
       <div class="astro-system-content">

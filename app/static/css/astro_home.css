@@ -95,6 +95,7 @@
 .jyotish { background: linear-gradient(135deg, #2dce89 0%, #24a46d 100%); }
 .numerology { background: linear-gradient(135deg, #11cdef 0%, #0099ab 100%); }
 .tarot { background: linear-gradient(135deg, #8965e0 0%, #6038bf 100%); }
+.planetary { background: linear-gradient(135deg, #4a6fa5 0%, #166088 100%); }
 
 .astro-system-content {
     padding: 20px;

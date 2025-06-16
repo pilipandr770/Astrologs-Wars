@@ -102,11 +102,24 @@ ASTRO_SYSTEMS = [
         'title': 'Таро-прогноз на сьогодні',
         'title_en': 'Tarot Forecast for Today',
         'title_de': 'Tarot-Prognose für heute',
-        'title_ru': 'Таро-прогноз на сегодня',
-        'content': 'Карти Таро відкривають таємниці дня та підказують оптимальні рішення в різних ситуаціях.',
+        'title_ru': 'Таро-прогноз на сегодня',        'content': 'Карти Таро відкривають таємниці дня та підказують оптимальні рішення в різних ситуаціях.',
         'content_en': 'Tarot cards reveal the secrets of the day and suggest optimal solutions in different situations.',
         'content_de': 'Tarotkarten enthüllen die Geheimnisse des Tages und schlagen optimale Lösungen in verschiedenen Situationen vor.',
         'content_ru': 'Карты Таро раскрывают тайны дня и подсказывают оптимальные решения в различных ситуациях.'
+    },
+    {
+        'name': 'Планетарна астрологія',
+        'name_en': 'Planetary Astrology',
+        'name_de': 'Planetenastrologie',
+        'name_ru': 'Планетарная астрология',
+        'title': 'Прогноз планетарної астрології на сьогодні',
+        'title_en': 'Planetary Astrology Forecast for Today',
+        'title_de': 'Planetenastrologie-Prognose für heute',
+        'title_ru': 'Прогноз планетарной астрологии на сегодня',
+        'content': 'Детальний аналіз розташування та аспектів планет, їх вплив на енергетичний фон дня та ваше життя.',
+        'content_en': 'Detailed analysis of the position and aspects of planets, their influence on the energy background of the day and your life.',
+        'content_de': 'Detaillierte Analyse der Stellung und Aspekte der Planeten, ihr Einfluss auf den energetischen Hintergrund des Tages und Ihr Leben.',
+        'content_ru': 'Детальный анализ расположения и аспектов планет, их влияние на энергетический фон дня и вашу жизнь.'
     }
 ]
 
@@ -114,14 +127,13 @@ def setup_astro_blogs():
     """Настраивает блоги под разные астрологические системы"""
     with app.app_context():
         print("Настройка блогов под разные астрологические системы...")
-        
-        # Получаем существующие блоги
+          # Получаем существующие блоги
         existing_blogs = BlogBlock.query.all()
         
-        # Если блогов меньше 7 (по количеству астро-систем), создаем новые
-        if len(existing_blogs) < 7:
+        # Если блогов меньше 8 (по количеству астро-систем), создаем новые
+        if len(existing_blogs) < 8:
             print(f"Найдено {len(existing_blogs)} блогов, создаем недостающие...")
-            for i in range(len(existing_blogs), 7):
+            for i in range(len(existing_blogs), 8):
                 new_blog = BlogBlock(
                     title=f"Блог #{i+1}",
                     content=f"Содержание блога #{i+1}",
@@ -135,7 +147,7 @@ def setup_astro_blogs():
             # Обновляем список блогов
             existing_blogs = BlogBlock.query.all()
         
-        # Обновляем первые 7 блогов под астро-системы
+        # Обновляем первые 8 блогов под астро-системы
         for i, system in enumerate(ASTRO_SYSTEMS):
             if i < len(existing_blogs):
                 blog = existing_blogs[i]
