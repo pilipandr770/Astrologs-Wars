@@ -10,7 +10,8 @@ from werkzeug.security import generate_password_hash
 from sqlalchemy import text
 
 def update_password_column_and_create_admin():
-    """Update password_hash column size and create admin user"""    # Clean DATABASE_URL to remove any newlines
+    """Update password_hash column size and create admin user"""
+    # Clean DATABASE_URL to remove any newlines
     if 'DATABASE_URL' in os.environ:
         os.environ['DATABASE_URL'] = os.environ['DATABASE_URL'].strip()
 
@@ -27,7 +28,8 @@ def update_password_column_and_create_admin():
             print("✅ Successfully updated password_hash column to VARCHAR(255)")
         except Exception as e:
             print(f"⚠️  Column update failed (might already be correct size): {str(e)}")
-          print("🔄 Creating/updating admin user...")
+        
+        print("🔄 Creating/updating admin user...")
         
         # Remove existing admin user if exists
         existing_user = User.query.filter_by(username='andrii770').first()
