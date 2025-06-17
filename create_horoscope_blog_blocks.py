@@ -6,7 +6,7 @@ This script uses the existing database schema with 'position' column.
 import os
 from app import create_app, db
 from app.models import BlogBlock
-from datetime import datetime
+from datetime import datetime, timezone
 
 def create_horoscope_blog_blocks():
     """Create BlogBlock entries for all horoscope systems"""
@@ -44,9 +44,8 @@ def create_horoscope_blog_blocks():
                     content=f"Ежедневные гороскопы по системе {name}. Этот блок автоматически обновляется каждый день с новыми прогнозами.",
                     summary=f"Гороскоп на сегодня - {name}",
                     position=position,
-                    is_active=True,
-                    created_at=datetime.utcnow(),
-                    updated_at=datetime.utcnow()
+                    is_active=True,                    created_at=datetime.now(timezone.utc),
+                    updated_at=datetime.now(timezone.utc)
                 )
                 db.session.add(block)
                 print(f"✅ Created: {name} (position={position})")
@@ -54,7 +53,7 @@ def create_horoscope_blog_blocks():
             else:
                 # Ensure existing block is active
                 existing_block.is_active = True
-                existing_block.updated_at = datetime.utcnow()
+                existing_block.updated_at = datetime.now(timezone.utc)
                 print(f"✅ Updated: {name} (position={position}) - set to active")
         
         # Commit changes

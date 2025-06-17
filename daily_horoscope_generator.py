@@ -431,8 +431,7 @@ class HoroscopeGenerator:
             run = self.client.beta.threads.runs.create(
                 thread_id=thread.id,
                 assistant_id=system['assistant_id_value']
-            )
-            
+            )            
             # Ожидаем завершения
             response = self._wait_for_run(thread.id, run.id)
             if not response or not response.get('success'):
@@ -440,7 +439,8 @@ class HoroscopeGenerator:
                 return None
                 
             return response.get('content')
-              except Exception as e:
+            
+        except Exception as e:
             logger.error(f"Ошибка при генерации гороскопа: {str(e)}")
             return None
     
