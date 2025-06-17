@@ -1,0 +1,56 @@
+services:
+  - type: web
+    name: astrolog-web
+    runtime: python
+    region: frankfurt
+    buildCommand: bash build_render.sh
+    startCommand: gunicorn wsgi:app --preload
+    envVars:
+      - key: DATABASE_URL
+        value: "postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.oregon-postgres.render.com:5432/astro_blog_db"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: TOKEN_CONTRACT_ADDRESS
+        value: 0xAf6087a1A730DAb2CA8d42dca7893c22fDBA683d
+      - key: TOKEN_RECEIVER_ADDRESS
+        value: 0x917544120060Feb4571CdB14dBCC1e4d8005c218
+      - key: PYTHONUNBUFFERED
+        value: 'true'
+      # OpenAI API key
+      - key: OPENAI_API_KEY
+        sync: false
+      # Assistants for blog automation
+      - key: OPENAI_ASSISTANT_ID
+        sync: false
+      - key: OPENAI_CONTENT_ASSISTANT_ID
+        sync: false
+      - key: OPENAI_TRANSLATION_ASSISTANT_ID
+        sync: false
+      # Assistants for horoscope systems
+      - key: EUROPEAN_ASTROLOGY_ASSISTANT_ID
+        sync: false
+      - key: CHINESE_ASTROLOGY_ASSISTANT_ID
+        sync: false
+      - key: INDIAN_ASTROLOGY_ASSISTANT_ID
+        sync: false
+      - key: LAL_KITAB_ASSISTANT_ID
+        sync: false
+      - key: JYOTISH_ASSISTANT_ID
+        sync: false
+      - key: NUMEROLOGY_ASSISTANT_ID
+        sync: false
+      - key: TAROT_ASSISTANT_ID
+        sync: false
+      - key: PLANETARY_ASTROLOGY_ASSISTANT_ID
+        sync: false
+      # Telegram notifications (optional)
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHANNEL_NAME
+        sync: false
+
+databases:
+  - name: ittoken-db
+    databaseName: astro_blog_db
+    user: ittoken_db_user
+    ipAllowList: []

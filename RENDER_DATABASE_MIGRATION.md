@@ -1,3 +1,79 @@
+# URGENT FIX: Database "astro_blog_db" Does Not Exist
+
+## Immediate Solution
+
+Your deployment is failing because the `astro_blog_db` database doesn't exist on your PostgreSQL server. Here's how to fix it immediately:
+
+### Option 1: Create the Database Manually (Recommended)
+
+1. **Connect to your PostgreSQL database via psql:**
+   ```bash
+   psql "postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.oregon-postgres.render.com/postgres"
+   ```
+
+2. **Create the astro_blog_db database:**
+   ```sql
+   CREATE DATABASE astro_blog_db;
+   ```
+
+3. **Connect to the new database and create the required tables:**
+   ```bash
+   psql "postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.oregon-postgres.render.com/astro_blog_db"
+   ```
+
+4. **Run the table creation script:**
+   ```bash
+   bash create_and_setup_db.sh
+   ```
+
+### Option 2: Use the Render Shell
+
+1. **Go to your Render service dashboard**
+2. **Open the "Shell" tab**
+3. **Run the database setup script:**
+   ```bash
+   bash create_and_setup_db.sh
+   ```
+
+### Option 3: Temporarily Use a Different Database
+
+Update your `render.yaml` to use the main postgres database temporarily:
+
+```yaml
+      - key: DATABASE_URL
+        value: "postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.oregon-postgres.render.com/postgres"
+```
+
+Then after the app starts successfully, you can create the astro_blog_db and switch back.
+
+## Why This Is Happening
+
+The error occurs because:
+1. Your application expects a database named `astro_blog_db`
+2. This database doesn't exist on your PostgreSQL instance
+3. SQLAlchemy's `db.create_all()` can't create tables in a non-existent database
+
+## Quick Commands Reference
+
+**Create database manually:**
+```sql
+-- Connect to default postgres database
+\c postgres
+
+-- Create the astro_blog_db database
+CREATE DATABASE astro_blog_db;
+
+-- Switch to the new database
+\c astro_blog_db
+
+-- Verify you're in the right database
+SELECT current_database();
+```
+
+After creating the database, your Render deployment should work correctly.
+
+---
+
 # Render Database Migration Guide
 
 This guide will help you migrate your application's database to Render.com.
