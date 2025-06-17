@@ -223,3 +223,18 @@
     margin-bottom: 0.5rem;
     line-height: 1.4;
 }
+
+
+/* Fix for footer visibility */
+.blog-section {
+    margin-bottom: 70px;
+    padding-bottom: 20px;
+}
+
+.container {
+    margin-bottom: 70px;
+}
+
+.blog-detail-content {
+    margin-bottom: 80px;
+}

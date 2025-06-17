@@ -17,7 +17,7 @@ class Config:
         SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db'
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    LANGUAGES = ['uk', 'en', 'ru']
+    LANGUAGES = ['uk', 'en', 'de', 'ru']
     UPLOAD_FOLDER = 'app/static/uploads'
     TOKEN_CONTRACT_ADDRESS = os.environ.get('TOKEN_CONTRACT_ADDRESS')
     TOKEN_RECEIVER_ADDRESS = os.environ.get('TOKEN_RECEIVER_ADDRESS')

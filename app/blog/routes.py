@@ -16,7 +16,8 @@ def get_blog_block_title(block):
     """Получает заголовок блока блога в текущем языке"""
     lang = g.get('lang', session.get('lang', 'uk'))
     if lang == 'uk':
-        return block.title  # Основной язык
+        # Prefer title_ua if available, otherwise use the primary title
+        return block.title_ua if block.title_ua else block.title
     elif lang == 'en' and block.title_en:
         return block.title_en
     elif lang == 'de' and block.title_de:
@@ -29,7 +30,8 @@ def get_blog_block_content(block):
     """Получает содержимое блока блога в текущем языке"""
     lang = g.get('lang', session.get('lang', 'uk'))
     if lang == 'uk':
-        return block.content  # Основной язык
+        # Prefer content_ua if available, otherwise use the primary content
+        return block.content_ua if block.content_ua else block.content
     elif lang == 'en' and block.content_en:
         return block.content_en
     elif lang == 'de' and block.content_de:
@@ -40,22 +42,30 @@ def get_blog_block_content(block):
 
 def get_blog_block_summary(block):
     """Получает краткое описание блока блога в текущем языке"""
+    from app.utils.text_utils import strip_html_tags
+    
     lang = g.get('lang', session.get('lang', 'uk'))
     if lang == 'uk':
-        return block.summary  # Основной язык
+        # Prefer summary_ua if available, otherwise use the primary summary
+        summary = block.summary_ua if block.summary_ua else block.summary
     elif lang == 'en' and block.summary_en:
-        return block.summary_en
+        summary = block.summary_en
     elif lang == 'de' and block.summary_de:
-        return block.summary_de
+        summary = block.summary_de
     elif lang == 'ru' and block.summary_ru:
-        return block.summary_ru
-    return block.summary
+        summary = block.summary_ru
+    else:
+        summary = block.summary
+        
+    # Strip HTML tags from summary to prevent raw HTML from showing
+    return strip_html_tags(summary)
 
 # Public blog routes
 @blog_bp.route('/')
 def index():
     """Main blog index page with all active blocks"""
-    blocks = BlogBlock.query.filter_by(is_active=True).order_by(BlogBlock.position).all()
+    # Get only the first 8 positions (horoscope blocks) that are active
+    blocks = BlogBlock.query.filter_by(is_active=True).filter(BlogBlock.position <= 8).order_by(BlogBlock.position).all()
     
     return render_template('blog/index.html', 
                           blocks=blocks,

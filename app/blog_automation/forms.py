@@ -60,11 +60,11 @@ class AutopostingSettingsForm(FlaskForm):
                     self.posting_time.data = time(hour=hour, minute=minute)
             except (ValueError, IndexError):
                 # If conversion fails, set to default time
-                self.posting_time.data = None
-    # Translation settings
+                self.posting_time.data = None    # Translation settings
     auto_translate = BooleanField('Automatically Translate Content')
     target_languages = MultiCheckboxField('Target Languages', 
         choices=[
+            ('uk', 'Ukrainian'),
             ('en', 'English'),
             ('de', 'German'),
             ('ru', 'Russian')

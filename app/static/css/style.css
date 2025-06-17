@@ -17,7 +17,7 @@ header, footer#site-footer {
     background: var(--header-footer-bg) !important;
     color: #232323 !important;
     box-shadow: 0 8px 48px #0002;
-    z-index: 1000;
+    z-index: 9000;
 }
 header { position: fixed; top: 0; left: 0; right: 0; width: 100%; padding: 1.2em 0; }
 footer#site-footer { 

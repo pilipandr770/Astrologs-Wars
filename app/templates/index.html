@@ -34,8 +34,7 @@
       {% endif %}
     </h3>
     <div class="recent-blog-posts">
-      {% for block in recent_blog_blocks %}
-      <div class="recent-post">
+      {% for block in recent_blog_blocks %}      <div class="recent-post">
         {% if block.featured_image %}
         <div class="post-image">
           <img src="{{ url_for('static', filename='uploads/blog/' + block.featured_image) }}" 
@@ -46,17 +45,19 @@
         <div class="post-info">
           <h4>{{ get_blog_block_title(block) }}</h4>
           <p class="post-summary">{{ get_blog_block_summary(block) }}</p>
-          <a href="{{ url_for('blog.block_detail', position=block.position) }}" class="btn btn-outline-primary btn-sm">
-            {% if g.get('lang') == 'en' %}
-              {{ _('Read more') }}
-            {% elif g.get('lang') == 'de' %}
-              {{ _('Mehr lesen') }}
-            {% elif g.get('lang') == 'ru' %}
-              {{ _('Читать далее') }}
-            {% else %}
-              {{ _('Читати далі') }}
-            {% endif %}
-          </a>
+          <div class="mt-auto">
+            <a href="{{ url_for('blog.block_detail', position=block.position) }}" class="btn btn-outline-primary btn-sm">
+              {% if g.get('lang') == 'en' %}
+                {{ _('Read more') }}
+              {% elif g.get('lang') == 'de' %}
+                {{ _('Mehr lesen') }}
+              {% elif g.get('lang') == 'ru' %}
+                {{ _('Читать далее') }}
+              {% else %}
+                {{ _('Читати далі') }}
+              {% endif %}
+            </a>
+          </div>
         </div>
       </div>
       {% if not loop.last %}<hr>{% endif %}
@@ -111,62 +112,71 @@
       </div>
     {% endif %}
   {% endfor %}
-
-  {# --- БЛОК ОПЛАТИ --- #}
-  <div class="block-card"
-       data-img=""
-       data-title="{{ _('Оплата онлайн') }}"
-       data-desc="{{ _('Виберіть зручний спосіб оплати для вашого замовлення. Ми підтримуємо Stripe, PayPal, банківські перекази та інші сучасні методи.') }}"
-       onclick="openBlockDetail(this.dataset.img, this.dataset.title, this.dataset.desc)">
+  {# --- БЛОК МАГАЗИНА --- #}
+  <div class="block-card shop-block"
+       data-href="{{ url_for('shop.index') }}"
+       onclick="handleBlockClick(this)">
+    {% if settings and settings.shop_image %}
+      <img src="{{ url_for('static', filename='uploads/' ~ settings.shop_image) }}" alt="{{ _('Магазин') }}">
+    {% endif %}
     <div>
-      <h3 style="margin:0 0 0.5em 0;">{{ _('Оплата онлайн') }}</h3>
+      <h3 style="margin:0 0 0.5em 0;">
+        {% if g.get('lang') == 'en' %}
+          {{ _('Shop') }}
+        {% elif g.get('lang') == 'de' %}
+          {{ _('Shop') }}
+        {% elif g.get('lang') == 'ru' %}
+          {{ _('Магазин') }}
+        {% else %}
+          {{ _('Магазин') }}
+        {% endif %}
+      </h3>
       <p style="margin:0 0 1.2em 0;">
-        {{ _('Виберіть зручний спосіб оплати для вашого замовлення. Ми підтримуємо Stripe, PayPal, банківські перекази та інші сучасні методи.') }}
+        {% if g.get('lang') == 'en' %}
+          {{ _('Visit our shop to find useful products for your spiritual practice.') }}
+        {% elif g.get('lang') == 'de' %}
+          {{ _('Besuchen Sie unseren Shop, um nützliche Produkte für Ihre spirituelle Praxis zu finden.') }}
+        {% elif g.get('lang') == 'ru' %}
+          {{ _('Посетите наш магазин для поиска полезных товаров для вашей духовной практики.') }}
+        {% else %}
+          {{ _('Відвідайте наш магазин для пошуку корисних товарів для вашої духовної практики.') }}
+        {% endif %}
       </p>
     </div>
-    <div class="payment-methods">
-      {% for method in methods %}
-        <div class="payment-card">
-          <h3>
-            {% if g.get('lang') == 'en' and method.name_en %}
-              {{ method.name_en }}
-            {% elif g.get('lang') == 'de' and method.name_de %}
-              {{ method.name_de }}
-            {% elif g.get('lang') == 'ru' and method.name_ru %}
-              {{ method.name_ru }}
-            {% else %}
-              {{ method.name_ua or method.name }}
-            {% endif %}
-          </h3>
-          {% if method.qr_code %}
-            <img src="{{ url_for('static', filename='uploads/' ~ method.qr_code) }}" alt="QR code" style="max-width:150px;">
-          {% endif %}
-          <div>
-            {% if g.get('lang') == 'en' and method.description_en %}
-              {{ method.description_en|safe }}
-            {% elif g.get('lang') == 'de' and method.description_de %}
-              {{ method.description_de|safe }}
-            {% elif g.get('lang') == 'ru' and method.description_ru %}
-              {{ method.description_ru|safe }}
-            {% else %}
-              {{ method.description_ua|safe }}
-            {% endif %}
+    
+    {% if featured_products %}
+    <div class="featured-products">
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for product in featured_products[:3] %}
+          <div class="col">
+            <div class="card h-100">
+              {% if product.image %}
+                <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" class="card-img-top" alt="{{ product.name }}">
+              {% endif %}
+              <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.price }} {{ settings.currency_symbol }}</p>
+              </div>
+            </div>
           </div>
-          {% if method.type == 'stripe' and method.details.url %}
-            <a href="{{ method.details.url }}" class="btn btn-primary" target="_blank">{{ _('Оплатити через Stripe') }}</a>
-          {% elif method.type == 'paypal' and method.details.url %}
-            <a href="{{ method.details.url }}" class="btn btn-primary" target="_blank">{{ _('Оплатити через PayPal') }}</a>
-          {% elif method.type == 'bank' %}
-            <p>{{ _('Реквізити') }}: {{ method.details.iban or '' }}</p>
-          {% endif %}
-          {% if method.invoice_pdf %}
-            <a href="{{ url_for('static', filename='uploads/' ~ method.invoice_pdf) }}" download>{{ _('Завантажити рахунок PDF') }}</a>
-          {% endif %}
-        </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+    
+    <span class="block-badge shop-badge">{{ _('Магазин товарів') }}</span>
     <div class="text-center mt-4">
-      <a href="{{ url_for('main.payment') }}" class="btn btn-lg btn-success">{{ _('Всі способи оплати та реквізити') }}</a>
+      <a href="{{ url_for('shop.index') }}" class="btn btn-lg btn-primary">
+        {% if g.get('lang') == 'en' %}
+          {{ _('Go to Shop') }}
+        {% elif g.get('lang') == 'de' %}
+          {{ _('Zum Shop') }}
+        {% elif g.get('lang') == 'ru' %}
+          {{ _('Перейти в магазин') }}
+        {% else %}
+          {{ _('Перейти до магазину') }}
+        {% endif %}
+      </a>
     </div>
   </div>
 </div>
@@ -245,26 +255,28 @@ window.addEventListener('keydown', function(e) {
 {%- endmacro %}
 
 {% macro get_blog_block_title(block) -%}
+  {# Используем фильтр striptags для удаления HTML-тегов #}
   {%- if g.get('lang') == 'en' and block.title_en %}
-    {{ block.title_en }}
+    {{ block.title_en|striptags }}
   {%- elif g.get('lang') == 'de' and block.title_de %}
-    {{ block.title_de }}
+    {{ block.title_de|striptags }}
   {%- elif g.get('lang') == 'ru' and block.title_ru %}
-    {{ block.title_ru }}
+    {{ block.title_ru|striptags }}
   {%- else %}
-    {{ block.title or '' }}
+    {{ block.title|striptags or '' }}
   {%- endif %}
 {%- endmacro %}
 
 {% macro get_blog_block_summary(block) -%}
+  {# Используем фильтр striptags для удаления HTML-тегов #}
   {%- if g.get('lang') == 'en' and block.summary_en %}
-    {{ block.summary_en }}
+    {{ block.summary_en|striptags }}
   {%- elif g.get('lang') == 'de' and block.summary_de %}
-    {{ block.summary_de }}
+    {{ block.summary_de|striptags }}
   {%- elif g.get('lang') == 'ru' and block.summary_ru %}
-    {{ block.summary_ru }}
+    {{ block.summary_ru|striptags }}
   {%- else %}
-    {{ block.summary or '' }}
+    {{ block.summary|striptags or '' }}
   {%- endif %}
 {%- endmacro %}
 

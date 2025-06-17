@@ -1,0 +1,56 @@
+/* 
+   CSS для выравнивания кнопок на главной странице
+   и в блоге на одном уровне 
+*/
+
+/* Стили для блоков блога на главной странице */
+.recent-post {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.recent-post .post-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 150px;
+}
+
+.recent-post .post-summary {
+    flex: 1;    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    margin-bottom: 15px;
+}
+
+.recent-post .btn {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+/* Стили для страницы блога */
+.blog-section .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.blog-section .card-body {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.blog-section .card-text {
+    flex: 1;
+    margin-bottom: 15px;
+}
+
+.blog-section .card-footer {
+    margin-top: auto;
+    padding-top: 15px;
+}

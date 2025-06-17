@@ -18,3 +18,5 @@ bleach
 python-slugify
 schedule
 Pillow
+pytz>=2023.3
+ephem

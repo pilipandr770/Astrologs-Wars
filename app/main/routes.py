@@ -119,18 +119,39 @@ def get_blog_block_summary(block):
 def index():
     """Головна сторінка з блоками різних астрологічних систем"""
     blocks = Block.query.filter_by(is_active=True).order_by(Block.order).all()
-    methods = PaymentMethod.query.filter_by(is_active=True).order_by(PaymentMethod.order).all()
     settings = Settings.query.first()
     
-  # Получаем активные блоки блога
+    # Импортируем функцию для очистки HTML
+    from app.utils.text_utils import strip_html_tags
+    
+    # Получаем активные блоки блога
     from app.models import BlogBlock
-    from app.blog.routes import get_blog_block_title, get_blog_block_summary, get_blog_block_content
-      # Получаем 7 блоков блога для разных астрологических систем
+    from app.blog.routes import get_blog_block_title, get_blog_block_content
+    # Используем локальную версию get_blog_block_summary с очисткой HTML
+    def get_blog_block_summary(block):
+        lang = g.get('lang', session.get('lang', 'uk'))
+        if lang == 'uk':
+            summary = block.summary_ua if block.summary_ua else block.summary
+        elif lang == 'en' and block.summary_en:
+            summary = block.summary_en
+        elif lang == 'de' and block.summary_de:
+            summary = block.summary_de
+        elif lang == 'ru' and block.summary_ru:
+            summary = block.summary_ru
+        else:
+            summary = block.summary
+        return strip_html_tags(summary)
+    
+    # Получаем 7 блоков блога для разных астрологических систем
     recent_blog_blocks = BlogBlock.query.filter_by(is_active=True).order_by(BlogBlock.position).limit(7).all()
     
+    # Получаем последние активные продукты для блока магазина
+    featured_products = Product.query.filter_by(is_active=True).order_by(Product.created_at.desc()).limit(3).all()
+    
     # Обязательно передаем все вспомогательные функции для локализации
-    return render_template('index.html.new', blocks=blocks, methods=methods, settings=settings, 
+    return render_template('index.html', blocks=blocks, settings=settings, 
                            recent_blog_blocks=recent_blog_blocks,
+                           featured_products=featured_products,
                            get_block_title=get_block_title,
                            get_block_content=get_block_content,
                            get_blog_block_title=get_blog_block_title,

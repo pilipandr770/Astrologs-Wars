@@ -1,6 +1,5 @@
 """
 Скрипт для ежедневной генерации гороскопов для разных астрологических систем.
-Будет запускаться автоматически в 7:00 утра.
 """
 import os
 import time
@@ -12,6 +11,10 @@ import requests
 from flask import current_app
 import io
 from werkzeug.utils import secure_filename
+import pytz
+
+# Импорты для астрологических расчетов
+import ephem
 
 from app import create_app, db
 from app.models import BlogBlock
@@ -36,69 +39,70 @@ ASTRO_SYSTEMS = [
         'position': 1,
         'assistant_id': 'EUROPEAN_ASTROLOGY_ASSISTANT_ID',  # ID будет заменен из .env
         'style': 'классическая европейская астрология, зодиакальные знаки, влияние планет',
+        'name_uk': 'Європейська астрологія',
         'name_en': 'European Astrology',
         'name_de': 'Europäische Astrologie',
         'name_ru': 'Европейская астрология',
-    },
-    {
+    },    {
         'name': 'Китайська астрологія',
         'position': 2,
         'assistant_id': 'CHINESE_ASTROLOGY_ASSISTANT_ID',
         'style': 'китайская астрология, животные-покровители, взаимодействие энергий инь и ян',
+        'name_uk': 'Китайська астрологія',
         'name_en': 'Chinese Astrology',
         'name_de': 'Chinesische Astrologie',
         'name_ru': 'Китайская астрология',
-    },
-    {
+    },    {
         'name': 'Індійська астрологія',
         'position': 3,
         'assistant_id': 'INDIAN_ASTROLOGY_ASSISTANT_ID',
         'style': 'ведическая астрология, накшатры, влияние карм и дош',
+        'name_uk': 'Індійська астрологія',
         'name_en': 'Indian Astrology',
         'name_de': 'Indische Astrologie',
         'name_ru': 'Индийская астрология',
-    },
-    {
+    },    {
         'name': 'Лал Кітаб',
         'position': 4,
         'assistant_id': 'LAL_KITAB_ASSISTANT_ID',
         'style': 'Лал Китаб, народная астрология, простые средства для устранения негативных влияний',
+        'name_uk': 'Лал Кітаб',
         'name_en': 'Lal Kitab',
         'name_de': 'Lal Kitab',
         'name_ru': 'Лал Китаб',
-    },
-    {
+    },    {
         'name': 'Джйотіш',
         'position': 5,
         'assistant_id': 'JYOTISH_ASSISTANT_ID',
         'style': 'глубокий анализ Джйотиш, древние ведические тексты, духовные аспекты',
+        'name_uk': 'Джйотіш',
         'name_en': 'Jyotish',
         'name_de': 'Jyotish',
         'name_ru': 'Джйотиш',
-    },
-    {
+    },    {
         'name': 'Нумерологія',
         'position': 6,
         'assistant_id': 'NUMEROLOGY_ASSISTANT_ID',
         'style': 'числовые вибрации, суммирование дат, взаимосвязи чисел, жизненные циклы',
+        'name_uk': 'Нумерологія',
         'name_en': 'Numerology',
         'name_de': 'Numerologie',
         'name_ru': 'Нумерология',
-    },
-    {
+    },    {
         'name': 'Таро',
         'position': 7,
         'assistant_id': 'TAROT_ASSISTANT_ID',
         'style': 'символизм карт Таро, расклады на день, толкования арканов',
+        'name_uk': 'Таро',
         'name_en': 'Tarot',
         'name_de': 'Tarot',
         'name_ru': 'Таро',
-    },
-    {
+    },    {
         'name': 'Планетарна астрологія',
         'position': 8,
         'assistant_id': 'PLANETARY_ASTROLOGY_ASSISTANT_ID',
         'style': 'влияние планет, транзиты, ретроградность, аспекты планет и их влияние на повседневную жизнь',
+        'name_uk': 'Планетарна астрологія',
         'name_en': 'Planetary Astrology',
         'name_de': 'Planetenastrologie',
         'name_ru': 'Планетарная астрология',
@@ -124,10 +128,229 @@ class HoroscopeGenerator:
                 system['assistant_id_value'] = ''
                 logger.warning(f"Для системы {system['name']} не указана переменная окружения assistant_id")
     
+    def _get_european_datetime(self):
+        """Возвращает текущую дату и время по европейскому времени (Киев/UTC+3)"""
+        kiev_tz = pytz.timezone('Europe/Kiev')
+        return datetime.now(kiev_tz)
+    
+    def _calculate_planet_positions(self):
+        """Рассчитывает положения планет на текущую дату"""
+        try:
+            # Получаем текущее время по Киеву
+            current_time = self._get_european_datetime()
+            
+            # Создаем наблюдателя (Киев)
+            observer = ephem.Observer()
+            observer.lat = '50.45'    # широта в десятичных градусах
+            observer.lon = '30.52'    # долгота в десятичных градусах
+            observer.date = current_time.strftime('%Y/%m/%d %H:%M:%S')
+            
+            # Список планет и объектов
+            celestial_objects = [
+                ('Sun', ephem.Sun()),
+                ('Moon', ephem.Moon()),
+                ('Mercury', ephem.Mercury()),
+                ('Venus', ephem.Venus()),
+                ('Mars', ephem.Mars()),
+                ('Jupiter', ephem.Jupiter()),
+                ('Saturn', ephem.Saturn()),
+                ('Uranus', ephem.Uranus()),
+                ('Neptune', ephem.Neptune()),
+                ('Pluto', ephem.Pluto()),
+            ]
+            
+            # Знаки зодиака (границы в радианах)
+            zodiac_signs = [
+                'Овен', 'Телец', 'Близнецы', 'Рак',
+                'Лев', 'Дева', 'Весы', 'Скорпион',
+                'Стрелец', 'Козерог', 'Водолей', 'Рыбы'
+            ]
+            
+            # Функция для определения знака зодиака по эклиптической долготе
+            def get_zodiac_sign(lon):
+                # Преобразуем радианы в градусы и нормализуем к диапазону [0, 360)
+                degrees = float(lon) * 180.0 / 3.14159 % 360
+                # Определяем знак (каждый знак занимает 30 градусов)
+                sign_index = int(degrees / 30)
+                return zodiac_signs[sign_index]
+            
+            # Получаем данные о планетах
+            planet_info = []
+            for name, body in celestial_objects:
+                try:
+                    body.compute(observer)
+                    # Эклиптическая долгота (ecliptic longitude)
+                    zodiac_sign = get_zodiac_sign(body.hlon)
+                    # Преобразуем радианы в градусы для позиции в знаке
+                    position_in_sign = (float(body.hlon) * 180.0 / 3.14159) % 30
+                    
+                    # Проверка ретроградности (только для планет, не для Sun и Moon)
+                    retrograde = ""
+                    if name not in ['Sun', 'Moon']:
+                        if hasattr(body, 'hlon_rate') and body.hlon_rate < 0:
+                            retrograde = " (R)"
+                    
+                    planet_info.append(f"{name}: {zodiac_sign} {position_in_sign:.1f}°{retrograde}")
+                except Exception as e:
+                    logger.warning(f"Ошибка при обработке объекта {name}: {str(e)}")
+            
+            # Формируем результат
+            result = "Положения планет:\n" + "\n".join(planet_info)
+                
+            return result
+                
+        except Exception as e:
+            logger.error(f"Ошибка при расчете положений планет: {str(e)}")
+            return "Информация о положении планет недоступна."
+    
+    def _get_astrological_events(self):
+        """Определяет текущие астрологические события"""
+        try:
+            # Получаем текущую дату по Киеву
+            current_time = self._get_european_datetime()
+            
+            # Создаем наблюдателя
+            observer = ephem.Observer()
+            observer.lat = '50.45'    # широта Киева
+            observer.lon = '30.52'    # долгота Киева
+            observer.date = current_time.strftime('%Y/%m/%d %H:%M:%S')
+            
+            events = []
+            
+            # Проверка на ретроградность планет
+            planets = [
+                ('Mercury', ephem.Mercury()),
+                ('Venus', ephem.Venus()),
+                ('Mars', ephem.Mars()),
+                ('Jupiter', ephem.Jupiter()),
+                ('Saturn', ephem.Saturn()),
+                ('Uranus', ephem.Uranus()),
+                ('Neptune', ephem.Neptune()),
+                ('Pluto', ephem.Pluto()),
+            ]
+            
+            for name, planet in planets:
+                try:
+                    planet.compute(observer)
+                    if hasattr(planet, 'hlon_rate') and planet.hlon_rate < 0:
+                        events.append(f"{name} ретроградный")
+                except Exception as e:
+                    logger.warning(f"Ошибка при проверке ретроградности {name}: {str(e)}")
+            
+            # Проверка на затмения и солнцестояния (простая версия)
+            month = current_time.month
+            day = current_time.day
+            
+            # Примерные даты особых событий
+            if month == 3 and day in range(20, 22):
+                events.append("Весеннее равноденствие")
+            elif month == 6 and day in range(20, 22):
+                events.append("Летнее солнцестояние")
+            elif month == 9 and day in range(22, 24):
+                events.append("Осеннее равноденствие")
+            elif month == 12 and day in range(21, 23):
+                events.append("Зимнее солнцестояние")
+            
+            # Фазы Луны
+            moon = ephem.Moon()
+            moon.compute(observer)
+            
+            # Фаза Луны от 0 до 1, где 0 - новолуние, 0.5 - полнолуние, 1 - новолуние
+            phase = moon.phase / 100.0
+            
+            if phase < 0.05 or phase > 0.95:
+                events.append("Новолуние")
+            elif 0.45 < phase < 0.55:
+                events.append("Полнолуние")
+            elif 0.20 < phase < 0.30:
+                events.append("Первая четверть Луны")
+            elif 0.70 < phase < 0.80:
+                events.append("Последняя четверть Луны")
+            
+            # Добавляем информацию о текущей лунной фазе
+            events.append(f"Фаза Луны: {moon.phase:.1f}%")
+            
+            if events:
+                return "Текущие астрологические события:\n" + "\n".join(events)
+            else:
+                return "Нет значимых астрологических событий на сегодня."
+                
+        except Exception as e:
+            logger.error(f"Ошибка при определении астрологических событий: {str(e)}")
+            return "Информация о астрологических событиях недоступна."
+    
+    def _get_significant_planets(self):
+        """Получает информацию о наиболее значимых планетарных влияниях для изображения"""
+        try:
+            # Получаем текущее время по Киеву
+            current_time = self._get_european_datetime()
+            
+            # Создаем наблюдателя (Киев)
+            observer = ephem.Observer()
+            observer.lat = '50.45'
+            observer.lon = '30.52'
+            observer.date = current_time.strftime('%Y/%m/%d %H:%M:%S')
+            
+            # Знаки зодиака
+            zodiac_signs = [
+                'Овен', 'Телец', 'Близнецы', 'Рак',
+                'Лев', 'Дева', 'Весы', 'Скорпион',
+                'Стрелец', 'Козерог', 'Водолей', 'Рыбы'
+            ]
+            
+            # Функция для определения знака зодиака
+            def get_zodiac_sign(lon):
+                degrees = float(lon) * 180.0 / 3.14159 % 360
+                sign_index = int(degrees / 30)
+                return zodiac_signs[sign_index]
+            
+            # Определяем важные планеты
+            significant = []
+            
+            # Получаем Солнце и Луну
+            sun = ephem.Sun()
+            sun.compute(observer)
+            moon = ephem.Moon()
+            moon.compute(observer)
+            
+            # Добавляем их в результат
+            significant.append(f"Солнце в знаке {get_zodiac_sign(sun.hlon)}")
+            significant.append(f"Луна в знаке {get_zodiac_sign(moon.hlon)} (фаза: {moon.phase:.1f}%)")
+            
+            # Проверяем ретроградные планеты
+            planets = [
+                ('Mercury', ephem.Mercury()),
+                ('Venus', ephem.Venus()),
+                ('Mars', ephem.Mars()),
+                ('Jupiter', ephem.Jupiter()),
+                ('Saturn', ephem.Saturn())
+            ]
+            
+            retrogrades = []
+            for name, planet in planets:
+                try:
+                    planet.compute(observer)
+                    if hasattr(planet, 'hlon_rate') and planet.hlon_rate < 0:
+                        retrogrades.append(name)
+                except:
+                    continue
+            
+            # Добавляем информацию о ретроградности
+            if retrogrades:
+                significant.append(f"Ретроградные планеты: {', '.join(retrogrades)}")
+                
+            result = "Включи визуальные элементы, отражающие: " + "; ".join(significant) + "."
+            return result
+            
+        except Exception as e:
+            logger.error(f"Ошибка при получении данных о значимых планетах: {str(e)}")
+            return ""
+
     def generate_all_horoscopes(self):
         """Генерирует гороскопы для всех астрологических систем"""
         with self.app.app_context():
-            logger.info(f"Начинаем генерацию гороскопов на {datetime.now().strftime('%Y-%m-%d')}")
+            european_time = self._get_european_datetime()
+            logger.info(f"Начинаем генерацию гороскопов на {european_time.strftime('%Y-%m-%d %H:%M')} (европейское время)")
             
             for system in ASTRO_SYSTEMS:
                 try:
@@ -157,23 +380,38 @@ class HoroscopeGenerator:
             logger.info("Генерация всех гороскопов завершена")
     
     def generate_horoscope(self, system):
-        """Генерирует гороскоп для конкретной астрологической системы"""
+        """Генерирует гороскоп для конкретной астрологической системы с использованием астрологических данных"""
         if not system.get('assistant_id_value'):
             logger.error(f"ID ассистента для {system['name']} не указан или не настроен")
             return None
             
-        today = datetime.now().strftime('%Y-%m-%d')
+        # Получаем европейское время
+        european_time = self._get_european_datetime()
+        today = european_time.strftime('%Y-%m-%d')
+        current_time = european_time.strftime('%H:%M')
+        
+        # Получаем астрологические данные
+        planet_positions = self._calculate_planet_positions()
+        astrological_events = self._get_astrological_events()
         
         prompt = f"""
-        Создай ежедневный гороскоп на {today} в стиле {system['name']} ({system['style']}).
+        Создай ежедневный гороскоп на {today} (текущее европейское время: {current_time}) 
+        в стиле {system['name']} ({system['style']}).
+        
+        АСТРОЛОГИЧЕСКИЕ ДАННЫЕ НА СЕГОДНЯ:
+        
+        {planet_positions}
+        
+        {astrological_events}
         
         Гороскоп должен включать:
-        1. Общее влияние планет/энергий на день
+        1. Общее влияние планет/энергий на день, ОСНОВЫВАЯСЬ НА РЕАЛЬНОМ ПОЛОЖЕНИИ ПЛАНЕТ, указанном выше
         2. Прогноз для каждого знака зодиака (или соответствующего элемента в данной системе)
-        3. Советы и рекомендации на день
+        3. Советы и рекомендации на день, учитывая текущие астрологические события
         4. Благоприятные часы и цвета дня
         
         Используй профессиональную терминологию, характерную для {system['name']}.
+        ВАЖНО: Опирайся на предоставленные астрологические данные для создания точного и аутентичного прогноза.
         Отформатируй текст с использованием HTML тегов для структурирования (параграфы, списки, выделения).
         Объем: 300-500 слов.
         """
@@ -216,8 +454,8 @@ class HoroscopeGenerator:
             logger.error(f"Блок блога для позиции {system['position']} не найден")
             return False
         
-        # Формируем заголовок
-        today = datetime.now().strftime('%d.%m.%Y')
+        # Формируем заголовок с европейским временем
+        today = self._get_european_datetime().strftime('%d.%m.%Y')
         title = f"{system['name']} - прогноз на {today}"
         
         # Обновляем контент
@@ -231,8 +469,7 @@ class HoroscopeGenerator:
         
         # Генерируем изображение
         self._generate_image(blog_block, system)
-        
-        # Сохраняем изменения
+          # Сохраняем изменения
         db.session.commit()
         logger.info(f"Блог {system['name']} успешно обновлен")
         return True
@@ -240,6 +477,14 @@ class HoroscopeGenerator:
     def _translate_content(self, blog_block):
         """Переводит контент на другие языки"""
         try:
+            # Переводим на украинский (основной язык)
+            uk_result = self._translate_to_language(blog_block.content, "украинский")
+            if uk_result:
+                blog_block.title_ua = f"{blog_block.title} (UK)"
+                blog_block.content_ua = uk_result
+                blog_block.summary_ua = uk_result[:200] + "..." if len(uk_result) > 200 else uk_result
+                logger.info("Контент переведен на украинский")
+            
             # Переводим на английский
             en_result = self._translate_to_language(blog_block.content, "английский")
             if en_result:
@@ -311,10 +556,20 @@ class HoroscopeGenerator:
     def _generate_image(self, blog_block, system):
         """Генерирует изображение для блога"""
         try:
-            # Генерируем промпт для DALL-E
+            # Получаем планетарные данные для изображения
+            try:
+                date = self._get_european_datetime()
+                planet_data = self._get_significant_planets()
+                date_str = date.strftime('%d.%m.%Y')
+            except:
+                planet_data = ""
+                date_str = "текущей даты"
+                
             image_prompt = f"""
-            Создай профессиональную иллюстрацию для астрологического прогноза в стиле {system['name']}.
+            Создай профессиональную иллюстрацию для астрологического прогноза в стиле {system['name']} на {date_str}.
             Изображение должно быть мистическим, духовным и содержать символы, характерные для {system['style']}.
+            {planet_data}
+            Визуализируй космические силы и планетарные влияния с помощью символизма.
             Стиль: цифровая графика, высококачественная, с глубокими цветами и детализацией.
             Без текста или надписей.
             """

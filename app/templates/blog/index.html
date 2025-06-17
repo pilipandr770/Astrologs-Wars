@@ -28,25 +28,22 @@
                     {% endif %}
                 </h1>
             </div>
-        </div>
-
-        <!-- Blog Blocks -->
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        </div>        <!-- Blog Blocks - 2 rows of 4 blocks each -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
             {% for block in blocks %}
-            {% if block.is_active %}
-            <div class="col">
-                <div class="card h-100 shadow-sm">
+            {% if block.is_active %}            <div class="col">
+                <div class="card h-100 shadow-sm d-flex flex-column">
                     {% if block.featured_image %}
                     <img src="{{ url_for('static', filename='uploads/blog/' + block.featured_image) }}" 
-                         class="card-img-top" style="height: 200px; object-fit: cover;" 
+                         class="card-img-top" style="height: 180px; object-fit: cover;" 
                          alt="{{ get_blog_block_title(block) }}"
                          onerror="this.src='{{ url_for('static', filename='uploads/' + block.featured_image) }}'">
                     {% endif %}
                     <div class="card-body">
                         <h3 class="card-title h5">{{ get_blog_block_title(block) }}</h3>
-                        <p class="card-text">{{ get_blog_block_summary(block)|safe }}</p>
+                        <p class="card-text">{{ get_blog_block_summary(block) }}</p>
                     </div>
-                    <div class="card-footer bg-white border-0">
+                    <div class="card-footer bg-white border-0 mt-auto">
                         <a href="{{ url_for('blog.block_detail', position=block.position) }}" class="btn btn-outline-primary">
                             {% if g.get('lang') == 'en' %}
                                 Read more
@@ -70,12 +67,44 @@
 
 {% block styles %}
 {{ super() }}
-<style>
-    .blog-section .card {
+<style>    .blog-section .card {
         transition: transform 0.3s;
+        font-size: 0.95rem;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
     .blog-section .card:hover {
         transform: translateY(-5px);
+    }
+    .blog-section .card-title {
+        font-size: 1.1rem;
+    }
+    .blog-section .card-text {
+        font-size: 0.9rem;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 6;
+        -webkit-box-orient: vertical;
+        max-height: 140px; /* Примерно 6 строк текста */
+    }
+    .blog-section .btn {
+        font-size: 0.9rem;
+    }
+    /* Ensure consistent layout for all cards */
+    .blog-section .card-body {
+        flex: 1 0 auto; /* Позволяет содержимому расширяться, но сохраняет минимальную высоту */
+        overflow: hidden;
+    }
+    .blog-section .card-footer {
+        margin-top: auto; /* Прижимает футер к низу карточки */
+    }
+    /* Layout adjustments to ensure 4 blocks per row on larger screens */
+    @media (min-width: 992px) {
+        .blog-section .col {
+            flex: 0 0 25%;
+            max-width: 25%;
+        }
     }
 </style>
 {% endblock %}
