@@ -13,10 +13,9 @@ def update_password_column_and_create_admin():
     """Update password_hash column size and create admin user"""
     # Clean DATABASE_URL to remove any newlines
     if 'DATABASE_URL' in os.environ:
-        os.environ['DATABASE_URL'] = os.environ['DATABASE_URL'].strip()
-
-    app = create_app()
-      with app.app_context():
+        os.environ['DATABASE_URL'] = os.environ['DATABASE_URL'].strip()    app = create_app()
+    
+    with app.app_context():
         print("🔧 Updating password_hash column size...")
         
         try:
