@@ -27,15 +27,16 @@ def update_password_column_and_create_admin():
             print("✅ Successfully updated password_hash column to VARCHAR(255)")
         except Exception as e:
             print(f"⚠️  Column update failed (might already be correct size): {str(e)}")
-        
-        print("🔄 Creating/updating admin user...")
+          print("🔄 Creating/updating admin user...")
         
         # Remove existing admin user if exists
         existing_user = User.query.filter_by(username='andrii770').first()
         if existing_user:
             db.session.delete(existing_user)
+            db.session.commit()  # Commit the deletion immediately
             print("🗑️  Removed existing admin user")
-          # Create password hash with fallback for different environments
+        
+        # Create password hash with fallback for different environments
         try:
             # Try scrypt first (preferred for production)
             password_hash = generate_password_hash('4517710070', method='scrypt')
