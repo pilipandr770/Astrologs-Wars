@@ -1,6 +1,11 @@
+import os
 from app import create_app, db
 from app.models import User
 from werkzeug.security import generate_password_hash
+
+# Clean DATABASE_URL to remove any newlines
+if 'DATABASE_URL' in os.environ:
+    os.environ['DATABASE_URL'] = os.environ['DATABASE_URL'].strip()
 
 app = create_app()
 with app.app_context():
