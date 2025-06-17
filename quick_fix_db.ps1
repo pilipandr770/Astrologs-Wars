@@ -16,7 +16,7 @@ if ($null -eq $psqlCheck) {
     Write-Host "[ERROR] psql command not found!" -ForegroundColor Red
     Write-Host "Please install PostgreSQL client tools or use the online psql from Render dashboard" -ForegroundColor Yellow
     Write-Host "You can also run this command manually:" -ForegroundColor Cyan
-    $connectionString = "postgresql://$DB_USER`:$DB_PASS@$DB_HOST`:$DB_PORT/postgres"
+    $connectionString = "postgresql://$DB_USER" + ":" + $DB_PASS + "@" + $DB_HOST + ":" + $DB_PORT + "/postgres"
     Write-Host "psql `"$connectionString`" -c `"CREATE DATABASE astro_blog_db;`"" -ForegroundColor White
     exit 1
 }
@@ -38,7 +38,7 @@ SELECT 'CREATE DATABASE astro_blog_db' WHERE NOT EXISTS (SELECT FROM pg_database
     Write-Host "[NEXT STEP] Now redeploy your Render service. The deployment should succeed." -ForegroundColor Cyan
     Write-Host ""
     Write-Host "If you want to create tables manually, use this connection string:" -ForegroundColor Yellow
-    $astroConnectionString = "postgresql://$DB_USER`:$DB_PASS@$DB_HOST`:$DB_PORT/astro_blog_db"
+    $astroConnectionString = "postgresql://$DB_USER" + ":" + $DB_PASS + "@" + $DB_HOST + ":" + $DB_PORT + "/astro_blog_db"
     Write-Host $astroConnectionString -ForegroundColor White
 }
 catch {
@@ -46,6 +46,6 @@ catch {
     Write-Host "Error details: $_" -ForegroundColor Red
     Write-Host ""
     Write-Host "Try running this command manually:" -ForegroundColor Yellow
-    $fallbackConnectionString = "postgresql://$DB_USER`:$DB_PASS@$DB_HOST`:$DB_PORT/postgres"
+    $fallbackConnectionString = "postgresql://$DB_USER" + ":" + $DB_PASS + "@" + $DB_HOST + ":" + $DB_PORT + "/postgres"
     Write-Host "psql `"$fallbackConnectionString`" -c `"CREATE DATABASE astro_blog_db;`"" -ForegroundColor White
 }
