@@ -11,6 +11,15 @@ from app import create_app, db
 
 # Print database connection information (for debugging)
 db_url = os.environ.get("DATABASE_URL", "Not set")
+
+# Fix any whitespace issues in DATABASE_URL
+if db_url != "Not set":
+    db_url_clean = db_url.strip()
+    if db_url != db_url_clean:
+        print(f"WARNING: DATABASE_URL had whitespace, cleaned: {repr(db_url)} -> {repr(db_url_clean)}")
+        os.environ["DATABASE_URL"] = db_url_clean
+        db_url = db_url_clean
+
 print(f"DATABASE_URL: {db_url if 'Not set' in db_url else db_url.split('@')[0] + '@....'}")
 
 try:
