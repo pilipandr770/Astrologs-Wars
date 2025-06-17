@@ -8,7 +8,7 @@ class User(UserMixin, db.Model):
     """Адміністратор сайту"""
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(255))  # Increased from 128 to 255 for modern password hashes
     wallet_address = db.Column(db.String(42))  # Ethereum/Polygon кошелек
     is_admin = db.Column(db.Boolean, default=False)
     token_balance = db.Column(db.Float, default=0.0)  # Баланс токенов
