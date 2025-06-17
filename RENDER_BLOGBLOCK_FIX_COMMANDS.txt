@@ -1,0 +1,40 @@
+# BLOGBLOCK MIGRATION AND HOROSCOPE FIX COMMANDS
+# Run these commands in the Render shell to fix the horoscope generator
+
+# 1. Clean up DATABASE_URL
+export DATABASE_URL=$(echo "$DATABASE_URL" | tr -d '\n')
+echo "✅ DATABASE_URL cleaned"
+
+# 2. Run the migration script to update BlogBlock model and create missing blocks
+python migrate_blog_blocks.py
+
+# 3. Test that all blog blocks can be found
+python test_blog_blocks.py
+
+# 4. If all tests pass, run the horoscope generator
+echo "🚀 Running horoscope generator..."
+python daily_horoscope_generator.py
+
+# Alternative: If you need to manually create blog blocks, use this Python one-liner:
+# python -c "
+# import os
+# os.environ['DATABASE_URL'] = os.environ.get('DATABASE_URL', '').strip()
+# from app import create_app, db
+# from app.models import BlogBlock
+# from datetime import datetime
+# app = create_app()
+# with app.app_context():
+#     systems = [('Європейська астрологія', 1), ('Китайська астрологія', 2), ('Індійська астрологія', 3), ('Лал Кітаб', 4), ('Джйотіш', 5), ('Нумерологія', 6), ('Таро', 7), ('Планетарна астрологія', 8)]
+#     for name, order in systems:
+#         existing = BlogBlock.query.filter_by(order=order).first()
+#         if not existing:
+#             block = BlogBlock(title=name, content=f'Гороскоп {name}', summary=f'Краткий гороскоп {name}', order=order, is_active=True, created_at=datetime.utcnow())
+#             db.session.add(block)
+#             print(f'Created: {name} (order={order})')
+#         else:
+#             print(f'Exists: {name} (order={order})')
+#     db.session.commit()
+#     print('Done!')
+# "
+
+echo "🎉 BlogBlock migration and horoscope generator fix completed!"

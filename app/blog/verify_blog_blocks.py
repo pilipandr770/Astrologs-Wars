@@ -17,7 +17,7 @@ with app.app_context():
     # Проверяем наличие всех 12 блоков
     missing = []
     for position in range(1, 13):
-        block = BlogBlock.query.filter_by(position=position).first()
+        block = BlogBlock.query.filter_by(order=position).first()
         if not block:
             missing.append(position)
             

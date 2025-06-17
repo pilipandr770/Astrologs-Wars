@@ -10,7 +10,7 @@ def setup_shop_block():
     
     with app.app_context():
         # Check if shop block exists
-        shop_block = BlogBlock.query.filter_by(position=12).first()
+        shop_block = BlogBlock.query.filter_by(order=12).first()
         
         if not shop_block:
             print("Creating new shop block...")

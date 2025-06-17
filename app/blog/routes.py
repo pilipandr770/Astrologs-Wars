@@ -76,7 +76,7 @@ def index():
 @blog_bp.route('/<int:position>')
 def block_detail(position):
     """Detail page for a specific block"""
-    block = BlogBlock.query.filter_by(position=position, is_active=True).first_or_404()
+    block = BlogBlock.query.filter_by(order=position, is_active=True).first_or_404()
     
     return render_template('blog/block_detail.html', 
                           block=block,
@@ -93,7 +93,7 @@ def admin_dashboard():
     
     # Ensure we have all 12 blocks
     for position in range(1, 13):
-        block = BlogBlock.query.filter_by(position=position).first()
+        block = BlogBlock.query.filter_by(order=position).first()
         if not block:
             block = BlogBlock(
                 title=f"Блок #{position}",
