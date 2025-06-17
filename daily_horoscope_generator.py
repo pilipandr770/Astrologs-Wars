@@ -113,6 +113,10 @@ class HoroscopeGenerator:
     """Класс для генерации ежедневных гороскопов"""
     
     def __init__(self, app=None):
+        # Clean DATABASE_URL to remove any newlines
+        if 'DATABASE_URL' in os.environ:
+            os.environ['DATABASE_URL'] = os.environ['DATABASE_URL'].strip()
+            
         self.app = app or create_app()
         self.client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
         self.translation_assistant_id = os.environ.get('OPENAI_TRANSLATION_ASSISTANT_ID')
