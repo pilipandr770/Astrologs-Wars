@@ -10,10 +10,11 @@ from werkzeug.security import generate_password_hash
 from sqlalchemy import text
 
 def update_password_column_and_create_admin():
-    """Update password_hash column size and create admin user"""
-    # Clean DATABASE_URL to remove any newlines
+    """Update password_hash column size and create admin user"""    # Clean DATABASE_URL to remove any newlines
     if 'DATABASE_URL' in os.environ:
-        os.environ['DATABASE_URL'] = os.environ['DATABASE_URL'].strip()    app = create_app()
+        os.environ['DATABASE_URL'] = os.environ['DATABASE_URL'].strip()
+
+    app = create_app()
     
     with app.app_context():
         print("🔧 Updating password_hash column size...")
@@ -34,10 +35,15 @@ def update_password_column_and_create_admin():
         if existing_user:
             db.session.delete(existing_user)
             print("🗑️  Removed existing admin user")
-        
-        # Create password hash
-        password_hash = generate_password_hash('4517710070', method='scrypt')
-        print(f"🔑 Generated password hash (length: {len(password_hash)})")
+          # Create password hash with fallback for different environments
+        try:
+            # Try scrypt first (preferred for production)
+            password_hash = generate_password_hash('4517710070', method='scrypt')
+            print(f"🔑 Generated scrypt password hash (length: {len(password_hash)})")
+        except ValueError:
+            # Fall back to pbkdf2 if scrypt is not available (local development)
+            password_hash = generate_password_hash('4517710070', method='pbkdf2:sha256')
+            print(f"🔑 Generated pbkdf2 password hash (length: {len(password_hash)})")
         
         # Create new admin user
         admin_user = User(
