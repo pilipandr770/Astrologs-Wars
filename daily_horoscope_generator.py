@@ -440,14 +440,14 @@ class HoroscopeGenerator:
                 return None
                 
             return response.get('content')
-            
-        except Exception as e:
-            logger.error(f"Ошибка при генерации гороскопа: {str(e)}")            return None
+              except Exception as e:
+            logger.error(f"Ошибка при генерации гороскопа: {str(e)}")
+            return None
     
     def update_blog(self, system, content):
         """Обновляет блог с новым контентом"""
         # Находим блок по позиции
-        blog_block = BlogBlock.query.filter_by(order=system['position']).first()
+        blog_block = BlogBlock.query.filter_by(position=system['position']).first()
         
         if not blog_block:
             logger.error(f"Блок блога для позиции {system['position']} не найден")

@@ -25,7 +25,7 @@ def check_blog_fixes():
         print(f"Active horoscope blocks: {len(horoscope_blocks)}")
         
         # Check for shop block
-        shop_block = BlogBlock.query.filter_by(order=12, is_active=True).first()
+        shop_block = BlogBlock.query.filter_by(position=12, is_active=True).first()
         print(f"Shop block active: {shop_block is not None}")
         
         # Test HTML stripping

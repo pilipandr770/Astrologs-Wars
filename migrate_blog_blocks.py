@@ -21,17 +21,16 @@ def migrate_and_create_blog_blocks():
         
         # First, ensure all tables are created with the new schema
         db.create_all()
-        
-        # Define the blog blocks we need for the horoscope systems
+          # Define the blog blocks we need for the horoscope systems
         horoscope_systems = [
-            {'name': 'Європейська астрологія', 'order': 1},
-            {'name': 'Китайська астрологія', 'order': 2},
-            {'name': 'Індійська астрологія', 'order': 3},
-            {'name': 'Лал Кітаб', 'order': 4},
-            {'name': 'Джйотіш', 'order': 5},
-            {'name': 'Нумерологія', 'order': 6},
-            {'name': 'Таро', 'order': 7},
-            {'name': 'Планетарна астрологія', 'order': 8},
+            {'name': 'Європейська астрологія', 'position': 1},
+            {'name': 'Китайська астрологія', 'position': 2},
+            {'name': 'Індійська астрологія', 'position': 3},
+            {'name': 'Лал Кітаб', 'position': 4},
+            {'name': 'Джйотіш', 'position': 5},
+            {'name': 'Нумерологія', 'position': 6},
+            {'name': 'Таро', 'position': 7},
+            {'name': 'Планетарна астрологія', 'position': 8},
         ]
         
         created_count = 0
@@ -39,14 +38,13 @@ def migrate_and_create_blog_blocks():
         
         for system in horoscope_systems:
             # Check if block already exists
-            existing_block = BlogBlock.query.filter_by(order=system['order']).first()
-            
-            if existing_block:
+            existing_block = BlogBlock.query.filter_by(position=system['position']).first()
+              if existing_block:
                 # Update existing block
                 existing_block.title = system['name']
                 existing_block.is_active = True
                 existing_block.updated_at = datetime.utcnow()
-                print(f"✅ Updated existing block: {system['name']} (order={system['order']})")
+                print(f"✅ Updated existing block: {system['name']} (position={system['position']})")
                 updated_count += 1
             else:
                 # Create new block
@@ -54,29 +52,28 @@ def migrate_and_create_blog_blocks():
                     title=system['name'],
                     content=f"Ежедневные гороскопы по системе {system['name']}. Этот блок будет автоматически обновляться каждый день.",
                     summary=f"Гороскоп на сегодня - {system['name']}",
-                    order=system['order'],
+                    position=system['position'],
                     is_active=True,
                     created_at=datetime.utcnow(),
                     updated_at=datetime.utcnow()
                 )
                 db.session.add(new_block)
-                print(f"✅ Created new block: {system['name']} (order={system['order']})")
+                print(f"✅ Created new block: {system['name']} (position={system['position']})")
                 created_count += 1
         
         # Also create a shop block at position 12 if it doesn't exist
-        shop_block = BlogBlock.query.filter_by(order=12).first()
-        if not shop_block:
+        shop_block = BlogBlock.query.filter_by(position=12).first()        if not shop_block:
             shop_block = BlogBlock(
                 title="Астрологічні товари",
                 content="Персоналізовані астрологічні товари та послуги",
                 summary="Магазин астрологічних товарів",
-                order=12,
+                position=12,
                 is_active=True,
                 created_at=datetime.utcnow(),
                 updated_at=datetime.utcnow()
             )
             db.session.add(shop_block)
-            print(f"✅ Created shop block at order=12")
+            print(f"✅ Created shop block at position=12")
             created_count += 1
         
         # Commit all changes
@@ -85,12 +82,11 @@ def migrate_and_create_blog_blocks():
             print(f"\n🎉 Migration completed successfully!")
             print(f"📊 Created: {created_count} blocks")
             print(f"📊 Updated: {updated_count} blocks")
-            
-            # Verify all blocks exist
+              # Verify all blocks exist
             print(f"\n📋 Verifying all BlogBlock entries:")
-            all_blocks = BlogBlock.query.order_by(BlogBlock.order).all()
+            all_blocks = BlogBlock.query.order_by(BlogBlock.position).all()
             for block in all_blocks:
-                print(f"   - Order {block.order}: {block.title} (active: {block.is_active})")
+                print(f"   - Position {block.position}: {block.title} (active: {block.is_active})")
             
             return True
             

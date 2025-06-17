@@ -32,16 +32,15 @@ def test_blog_blocks():
         
         all_found = True
         
-        for system in systems_to_test:
-            # Use the corrected query (order instead of position)
-            blog_block = BlogBlock.query.filter_by(order=system['position']).first()
+        for system in systems_to_test:            # Use the corrected query (position instead of order)
+            blog_block = BlogBlock.query.filter_by(position=system['position']).first()
             
             if blog_block:
-                print(f"✅ Found block for {system['name']} (order={system['position']})")
+                print(f"✅ Found block for {system['name']} (position={system['position']})")
                 print(f"   Title: {blog_block.title}")
                 print(f"   Active: {blog_block.is_active}")
             else:
-                print(f"❌ No block found for {system['name']} (order={system['position']})")
+                print(f"❌ No block found for {system['name']} (position={system['position']})")
                 all_found = False
         
         if all_found:

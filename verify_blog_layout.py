@@ -29,7 +29,7 @@ def verify_blog_layout():
                     print(f"Missing block at position {i}")
                     
                     # Get the block if it exists but is inactive
-                    inactive_block = BlogBlock.query.filter_by(order=i).first()
+                    inactive_block = BlogBlock.query.filter_by(position=i).first()
                     if inactive_block:
                         print(f"  Found inactive block at position {i}, activating it...")
                         inactive_block.is_active = True
@@ -48,7 +48,7 @@ def verify_blog_layout():
             print("Horoscope blocks updated!")
         
         # Check for shop block
-        shop_block = BlogBlock.query.filter_by(order=12).first()
+        shop_block = BlogBlock.query.filter_by(position=12).first()
         if shop_block:
             print(f"Shop block exists (position 12), active: {shop_block.is_active}")
         else:

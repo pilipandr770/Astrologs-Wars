@@ -350,7 +350,7 @@ class BlogBlock(db.Model):
     summary = db.Column(db.Text, nullable=True)
     featured_image = db.Column(db.String(255), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
-    order = db.Column(db.Integer, default=1)  # Order from 1-12 (renamed from position)
+    position = db.Column(db.Integer, default=1)  # Position from 1-12
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
