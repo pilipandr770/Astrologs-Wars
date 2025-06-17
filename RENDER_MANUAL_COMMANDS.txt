@@ -1,0 +1,85 @@
+# КОМАНДЫ ДЛЯ РУЧНОЙ ИНИЦИАЛИЗАЦИИ БАЗЫ ДАННЫХ В ТЕРМИНАЛЕ RENDER
+
+## 🚀 АВТОМАТИЧЕСКИЙ СПОСОБ (РЕКОМЕНДУЕТСЯ)
+# Запустите этот скрипт для полной инициализации:
+python render_manual_db_init.py
+
+## 🔧 ПОШАГОВЫЕ КОМАНДЫ (если автоматический способ не работает)
+
+# 1. Проверить подключение к базе данных
+python -c "
+import os
+from sqlalchemy import create_engine, text
+engine = create_engine(os.environ.get('DATABASE_URL'))
+with engine.connect() as conn:
+    result = conn.execute(text('SELECT current_database(), version()'))
+    print('Connected to:', result.fetchone())
+"
+
+# 2. Создать все таблицы
+python -c "
+from app import create_app, db
+app = create_app()
+with app.app_context():
+    db.create_all()
+    print('Tables created successfully!')
+"
+
+# 3. Проверить созданные таблицы
+python -c "
+from app import create_app, db
+from sqlalchemy import inspect
+app = create_app()
+with app.app_context():
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+    print(f'Created tables ({len(tables)}): {tables}')
+"
+
+# 4. Создать администратора
+python -c "
+from app import create_app, db
+from app.models import User
+from werkzeug.security import generate_password_hash
+app = create_app()
+with app.app_context():
+    if not User.query.filter_by(username='admin').first():
+        admin = User(username='admin', email='admin@astro.com', is_admin=True)
+        admin.password_hash = generate_password_hash('admin123')
+        db.session.add(admin)
+        db.session.commit()
+        print('Admin created: username=admin, password=admin123')
+    else:
+        print('Admin already exists')
+"
+
+# 5. Проверить пользователей
+python -c "
+from app import create_app, db
+from app.models import User
+app = create_app()
+with app.app_context():
+    users = User.query.all()
+    print(f'Total users: {len(users)}')
+    for user in users:
+        print(f'- {user.username} (admin: {user.is_admin})')
+"
+
+## 🗄️ ПОЛЕЗНЫЕ КОМАНДЫ ДЛЯ ОТЛАДКИ
+
+# Проверить DATABASE_URL
+echo "DATABASE_URL: $DATABASE_URL"
+
+# Проверить все переменные окружения
+env | grep -E "(DATABASE|DB_)"
+
+# Запустить интерактивную Python сессию с приложением
+python -c "
+from app import create_app, db
+app = create_app()
+app.app_context().push()
+print('App context ready. You can now use db, models, etc.')
+# Оставить сессию открытой для интерактивной работы
+import code
+code.interact(local=locals())
+"

@@ -120,4 +120,11 @@ except Exception as e:
 "
 fi
 
+# Инициализация базы данных и создание таблиц
+echo "=== DATABASE INITIALIZATION ==="
+if [ -n "$DATABASE_URL" ]; then
+    echo "Initializing database tables..."
+    python render_manual_db_init.py || echo "Database initialization failed, will try again at startup"
+fi
+
 echo "=== BUILD PROCESS COMPLETED ==="
