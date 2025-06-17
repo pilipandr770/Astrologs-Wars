@@ -426,12 +426,12 @@ class HoroscopeGenerator:
                 role="user",
                 content=prompt
             )
-            
-            # Запускаем ассистента
+              # Запускаем ассистента
             run = self.client.beta.threads.runs.create(
                 thread_id=thread.id,
                 assistant_id=system['assistant_id_value']
-            )            
+            )
+            
             # Ожидаем завершения
             response = self._wait_for_run(thread.id, run.id)
             if not response or not response.get('success'):
