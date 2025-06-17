@@ -16,10 +16,10 @@ def update_password_column_and_create_admin():
         os.environ['DATABASE_URL'] = os.environ['DATABASE_URL'].strip()
 
     app = create_app()
-    
-    with app.app_context():
+      with app.app_context():
         print("🔧 Updating password_hash column size...")
-          try:
+        
+        try:
             # First, try to alter the column size
             with db.engine.connect() as connection:
                 connection.execute(text("ALTER TABLE \"user\" ALTER COLUMN password_hash TYPE VARCHAR(255)"))
