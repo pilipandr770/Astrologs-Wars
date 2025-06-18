@@ -24,6 +24,13 @@ def get_blog_block_title(block):
         return block.title_de
     elif lang == 'ru' and block.title_ru:
         return block.title_ru
+    return block.title_ua if block.title_ua else block.title
+    elif lang == 'en' and block.title_en:
+        return block.title_en
+    elif lang == 'de' and block.title_de:
+        return block.title_de
+    elif lang == 'ru' and block.title_ru:
+        return block.title_ru
     return block.title
 
 def get_blog_block_content(block):

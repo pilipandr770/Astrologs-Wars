@@ -40,10 +40,10 @@
                          onerror="this.src='{{ url_for('static', filename='uploads/' + block.featured_image) }}'">
                     {% endif %}
                     <div class="card-body">
-                        <h3 class="card-title h5">{{ get_blog_block_title(block) }}</h3>
+                        <h3 class="card-title h5">{{ get_blog_block_title(block)|striptags }}</h3>
                         <p class="card-text">{{ get_blog_block_summary(block) }}</p>
                     </div>
-                    <div class="card-footer bg-white border-0 mt-auto">
+                    <div class="card-footer bg-white border-0 text-center mt-auto">
                         <a href="{{ url_for('blog.block_detail', position=block.position) }}" class="btn btn-outline-primary">
                             {% if g.get('lang') == 'en' %}
                                 Read more

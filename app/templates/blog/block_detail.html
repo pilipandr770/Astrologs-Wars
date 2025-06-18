@@ -44,12 +44,12 @@
                                 Блог
                             {% endif %}
                         </a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ get_blog_block_title(block) }}</li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ get_blog_block_title(block)|striptags }}</li>
                     </ol>
                 </nav>
                 
                 <!-- Post Header -->
-                <h1 class="mb-4">{{ get_blog_block_title(block) }}</h1>
+                <h1 class="mb-4">{{ get_blog_block_title(block)|striptags }}</h1>
                 
                 <!-- Featured Image -->
                 {% if block.featured_image %}
