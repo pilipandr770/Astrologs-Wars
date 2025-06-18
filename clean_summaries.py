@@ -5,7 +5,7 @@
 - Можно запускать однократно для исправления старых данных
 """
 import re
-from app import db
+from app import db, app
 from app.models import BlogBlock
 from app.utils.text_utils import strip_html_tags
 
@@ -23,4 +23,5 @@ def clean_all_summaries():
     print('Все summary очищены!')
 
 if __name__ == "__main__":
-    clean_all_summaries()
+    with app.app_context():
+        clean_all_summaries()

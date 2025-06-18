@@ -701,15 +701,16 @@ class HoroscopeGenerator:
 
 # Точка входа для запуска скрипта
 if __name__ == "__main__":
-    generator = HoroscopeGenerator()
-    
-    import sys
-    
-    # Проверяем аргументы командной строки
-    if len(sys.argv) > 1 and sys.argv[1] == "check":
-        generator.check_assistants_setup()
-    else:
-        print("\nГенерация ежедневных гороскопов...")
-        generator.generate_all_horoscopes()
-        print("\nЕжедневные гороскопы сгенерированы!")
-        print("\nДля проверки настроек ассистентов запустите: python daily_horoscope_generator.py check")
+    from app import create_app
+    app = create_app()
+    with app.app_context():
+        generator = HoroscopeGenerator()
+        import sys
+        # Проверяем аргументы командной строки
+        if len(sys.argv) > 1 and sys.argv[1] == "check":
+            generator.check_assistants_setup()
+        else:
+            print("\nГенерация ежедневных гороскопов...")
+            generator.generate_all_horoscopes()
+            print("\nЕжедневные гороскопы сгенерированы!")
+            print("\nДля проверки настроек ассистентов запустите: python daily_horoscope_generator.py check")
