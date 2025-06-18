@@ -14,9 +14,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/astro_home.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/astro_shop.css') }}">    <link rel="stylesheet" href="{{ url_for('static', filename='css/astro_admin.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/footer_fix.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/fixed_position_fix.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/button_alignment.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/horoscope-blocks.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fixed_position_fix.css') }}">    <link rel="stylesheet" href="{{ url_for('static', filename='css/button_alignment.css') }}">    <link rel="stylesheet" href="{{ url_for('static', filename='css/horoscope-blocks.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/project-info.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main-block.css') }}">
     
     {% block head %}{% endblock %}
     {% block extra_css %}{% endblock %}
@@ -293,16 +293,26 @@
         <!-- Ліва частина: Дім, Блог, Магазин -->
         <div class="nav-left">
           <a href="{{ url_for('main.index') }}">{{ _('Дім') }}</a>
-          <a href="{{ url_for('blog.index') }}">{{ _('Блог') }}</a>
+          <a href="{{ url_for('blog.index') }}">
+            {% if g.get('lang') == 'en' %}
+              {{ _('Forecasts') }}
+            {% elif g.get('lang') == 'de' %}
+              {{ _('Prognosen') }}
+            {% elif g.get('lang') == 'ru' %}
+              {{ _('Прогнозы') }}
+            {% else %}
+              {{ _('Прогнози') }}
+            {% endif %}
+          </a>
           <a href="{{ url_for('shop.index') }}">
             {% if g.get('lang') == 'en' %}
-              {{ _('Shop') }}
+              {{ _('Personal Horoscope') }}
             {% elif g.get('lang') == 'de' %}
-              {{ _('Shop') }}
+              {{ _('Persönliches Horoskop') }}
             {% elif g.get('lang') == 'ru' %}
-              {{ _('Магазин') }}
+              {{ _('Персональный гороскоп') }}
             {% else %}
-              {{ _('Магазин') }}
+              {{ _('Персональний гороскоп') }}
             {% endif %}
           </a>
         </div>
