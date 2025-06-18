@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% block title %}{{ _('Головна') }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Main info block (top) -->
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="main-info-block">
+        {% if top_block %}
+          <div class="text-center">
+            {% if top_block.image %}
+              <img src="{{ url_for('static', filename='uploads/' ~ top_block.image) }}" alt="{{ get_block_title(top_block) }}" class="block-image img-fluid">
+            {% endif %}
+            <h1>{{ get_block_title(top_block) }}</h1>
+          </div>
+          <div class="content">
+            {{ get_block_content(top_block)|safe }}
+          </div>
+        {% else %}
+          <div class="text-center">
+            <h1>
+              {% if g.get('lang') == 'en' %}
+                {{ _('Astrology Portal') }}
+              {% elif g.get('lang') == 'de' %}
+                {{ _('Astrologie-Portal') }}
+              {% elif g.get('lang') == 'ru' %}
+                {{ _('Астрологический портал') }}
+              {% else %}
+                {{ _('Астрологічний портал') }}
+              {% endif %}
+            </h1>
+          </div>
+          <div class="content">
+            <p class="lead text-center">
+              {% if g.get('lang') == 'en' %}
+                {{ _('Welcome to our professional astrology portal, where you can discover daily horoscopes, personal forecasts, and astrological consultations.') }}
+              {% elif g.get('lang') == 'de' %}
+                {{ _('Willkommen auf unserem professionellen Astrologieportal, wo Sie tägliche Horoskope, persönliche Vorhersagen und astrologische Beratungen entdecken können.') }}
+              {% elif g.get('lang') == 'ru' %}
+                {{ _('Добро пожаловать на наш профессиональный астрологический портал, где вы можете открыть для себя ежедневные гороскопы, персональные прогнозы и астрологические консультации.') }}
+              {% else %}
+                {{ _('Вітаємо на нашому професійному астрологічному порталі, де ви можете дізнатися щоденні гороскопи, персональні прогнози та отримати астрологічні консультації.') }}
+              {% endif %}
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Shop section (bottom) -->
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="featured-shop-section">
+        <h2>
+          {% if g.get('lang') == 'en' %}
+            {{ _('Featured Products') }}
+          {% elif g.get('lang') == 'de' %}
+            {{ _('Ausgewählte Produkte') }}
+          {% elif g.get('lang') == 'ru' %}
+            {{ _('Избранные товары') }}
+          {% else %}
+            {{ _('Вибрані товари') }}
+          {% endif %}
+        </h2>
+        
+        <div class="shop-description">
+          {% if g.get('lang') == 'en' %}
+            {{ _('Discover our collection of professional astrological services and products for your spiritual journey.') }}
+          {% elif g.get('lang') == 'de' %}
+            {{ _('Entdecken Sie unsere Sammlung professioneller astrologischer Dienstleistungen und Produkte für Ihre spirituelle Reise.') }}
+          {% elif g.get('lang') == 'ru' %}
+            {{ _('Откройте для себя нашу коллекцию профессиональных астрологических услуг и товаров для вашего духовного пути.') }}
+          {% else %}
+            {{ _('Відкрийте для себе нашу колекцію професійних астрологічних послуг та товарів для вашої духовної подорожі.') }}
+          {% endif %}
+        </div>
+        
+        {% if featured_products %}
+          <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for product in featured_products %}
+              <div class="col">
+                <a href="{{ url_for('shop.product', slug=product.slug) }}" class="text-decoration-none">
+                  <div class="product-card">
+                    {% if product.image %}
+                      <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ get_product_name(product) }}" class="img-fluid">
+                    {% endif %}
+                    <div class="card-body">
+                      <h5 class="card-title">{{ get_product_name(product) }}</h5>
+                      <p class="card-price">{{ product.price }} {% if settings %}{{ settings.currency_symbol or '€' }}{% else %}€{% endif %}</p>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center my-4">
+            <p>
+              {% if g.get('lang') == 'en' %}
+                {{ _('No products available at the moment.') }}
+              {% elif g.get('lang') == 'de' %}
+                {{ _('Derzeit keine Produkte verfügbar.') }}
+              {% elif g.get('lang') == 'ru' %}
+                {{ _('На данный момент нет доступных товаров.') }}
+              {% else %}
+                {{ _('На даний момент немає доступних товарів.') }}
+              {% endif %}
+            </p>
+          </div>
+        {% endif %}
+        
+        <div class="shop-button-container">
+          <a href="{{ url_for('shop.index') }}" class="btn btn-primary btn-shop">
+            {% if g.get('lang') == 'en' %}
+              {{ _('Visit Shop') }}
+            {% elif g.get('lang') == 'de' %}
+              {{ _('Shop besuchen') }}
+            {% elif g.get('lang') == 'ru' %}
+              {{ _('Перейти в магазин') }}
+            {% else %}
+              {{ _('Перейти до магазину') }}
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+  
+  {# --- ВСІ інші блоки --- #}
+  {% set other_blocks = blocks|rejectattr('is_top')|list %}
+  {% for block in other_blocks %}
+    {% set block_index = loop.index0 %}
+    {% if block.slug in ['bots', 'shop', 'магазин'] %}
+      <div class="block-card shop-block"
+           data-href="{{ url_for('shop.index') }}"
+           onclick="handleBlockClick(this)">
+        {% if block.image %}
+          <img src="{{ url_for('static', filename='uploads/' ~ block.image) }}" alt="{{ get_block_title(block) }}">
+        {% endif %}
+        <h3>{{ _('Магазин товарів') }}</h3>
+        <p>{{ get_block_content(block)|safe }}</p>
+        <span class="block-badge shop-badge">{{ _('Магазин товарів') }}</span>
+        <div class="text-center mt-3">
+          <a href="{{ url_for('shop.index') }}" class="btn btn-lg btn-primary">{{ _('Перейти в магазин') }}</a>
+        </div>
+      </div>
+    {# Убираем блокчейн-блоки и добавляем стандартный контент-блок #}
+    {% else %}
+      <div class="block-card content-block"
+           data-img="{{ block.image and url_for('static', filename='uploads/' ~ block.image) or '' }}"
+           data-title="{{ get_block_title(block) }}"
+           data-desc="{{ get_block_content(block) }}"
+           onclick="openBlockDetail(this.dataset.img, this.dataset.title, this.dataset.desc)">
+        {% if block.image %}
+          <img src="{{ url_for('static', filename='uploads/' ~ block.image) }}" alt="{{ get_block_title(block) }}">
+        {% endif %}
+        <h3>{{ get_block_title(block) }}</h3>
+        <p>{{ get_block_content(block)|safe }}</p>
+      </div>
+    {% endif %}
+  {% endfor %}
+  {# --- БЛОК МАГАЗИНА --- #}
+  <div class="block-card shop-block"
+       data-href="{{ url_for('shop.index') }}"
+       onclick="handleBlockClick(this)">
+    {% if settings and settings.shop_image %}
+      <img src="{{ url_for('static', filename='uploads/' ~ settings.shop_image) }}" alt="{{ _('Магазин') }}">
+    {% endif %}
+    <div>
+      <h3 style="margin:0 0 0.5em 0;">
+        {% if g.get('lang') == 'en' %}
+          {{ _('Shop') }}
+        {% elif g.get('lang') == 'de' %}
+          {{ _('Shop') }}
+        {% elif g.get('lang') == 'ru' %}
+          {{ _('Магазин') }}
+        {% else %}
+          {{ _('Магазин') }}
+        {% endif %}
+      </h3>
+      <p style="margin:0 0 1.2em 0;">
+        {% if g.get('lang') == 'en' %}
+          {{ _('Visit our shop to find useful products for your spiritual practice.') }}
+        {% elif g.get('lang') == 'de' %}
+          {{ _('Besuchen Sie unseren Shop, um nützliche Produkte für Ihre spirituelle Praxis zu finden.') }}
+        {% elif g.get('lang') == 'ru' %}
+          {{ _('Посетите наш магазин для поиска полезных товаров для вашей духовной практики.') }}
+        {% else %}
+          {{ _('Відвідайте наш магазин для пошуку корисних товарів для вашої духовної практики.') }}
+        {% endif %}
+      </p>
+    </div>
+    
+    {% if featured_products %}
+    <div class="featured-products">
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for product in featured_products[:3] %}
+          <div class="col">
+            <div class="card h-100">
+              {% if product.image %}
+                <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" class="card-img-top" alt="{{ product.name }}">
+              {% endif %}
+              <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.price }} {{ settings.currency_symbol }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    
+    <span class="block-badge shop-badge">{{ _('Магазин товарів') }}</span>
+    <div class="text-center mt-4">
+      <a href="{{ url_for('shop.index') }}" class="btn btn-lg btn-primary">
+        {% if g.get('lang') == 'en' %}
+          {{ _('Go to Shop') }}
+        {% elif g.get('lang') == 'de' %}
+          {{ _('Zum Shop') }}
+        {% elif g.get('lang') == 'ru' %}
+          {{ _('Перейти в магазин') }}
+        {% else %}
+          {{ _('Перейти до магазину') }}
+        {% endif %}
+      </a>
+    </div>
+  </div>
+</div>
+
+{# ---- POPUP ---- #}
+<div id="block-detail-popup">
+  <div class="popup-card">
+    <button class="popup-close" onclick="closeBlockDetail()">&times;</button>
+    <img id="block-detail-img" src="" alt="Фото" style="display:none;">
+    <h2 id="block-detail-title"></h2>
+    <div class="desc" id="block-detail-desc"></div>
+  </div>
+</div>
+<script>
+function openBlockDetail(img, title, desc) {
+    const imgEl = document.getElementById('block-detail-img');
+    if(img){
+      imgEl.src = img;
+      imgEl.style.display = 'block';
+    } else {
+      imgEl.style.display = 'none';
+    }
+    document.getElementById('block-detail-title').innerText = title;
+    document.getElementById('block-detail-desc').innerText = desc;
+    document.getElementById('block-detail-popup').style.display = 'flex';
+}
+function closeBlockDetail() {
+    document.getElementById('block-detail-popup').style.display = 'none';
+}
+/**
+ * Універсальний обробник кліку для карток.
+ * Якщо елемент має data-href — переходимо за посиланням,
+ * інакше відкриваємо детальний попап.
+ */
+function handleBlockClick(el){
+    if(el.dataset.href){
+        location.href = el.dataset.href;
+    } else {
+        openBlockDetail(el.dataset.img, el.dataset.title, el.dataset.desc);
+    }
+}
+
+window.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") closeBlockDetail();
+});
+</script>
+{% endblock %}
+
+{# --- JINJA MACROS --- #}
+{% macro get_block_title(block) -%}
+  {%- if g.get('lang') == 'en' and block.title_en %}
+    {{ block.title_en }}
+  {%- elif g.get('lang') == 'de' and block.title_de %}
+    {{ block.title_de }}
+  {%- elif g.get('lang') == 'ru' and block.title_ru %}
+    {{ block.title_ru }}
+  {%- elif g.get('lang') == 'ua' and block.title_ua %}
+    {{ block.title_ua }}
+  {%- else %}
+    {{ block.title or '' }}
+  {%- endif %}
+{%- endmacro %}
+
+{% macro get_block_content(block) -%}
+  {%- if g.get('lang') == 'en' and block.content_en %}
+    {{ block.content_en }}
+  {%- elif g.get('lang') == 'de' and block.content_de %}
+    {{ block.content_de }}
+  {%- elif g.get('lang') == 'ru' and block.content_ru %}
+    {{ block.content_ru }}
+  {%- elif g.get('lang') == 'ua' and block.content_ua %}
+    {{ block.content_ua }}
+  {%- else %}
+    {{ block.content or '' }}
+  {%- endif %}
+{%- endmacro %}
+
+{% macro get_blog_block_title(block) -%}
+  {# Используем фильтр striptags для удаления HTML-тегов #}
+  {%- if g.get('lang') == 'en' and block.title_en %}
+    {{ block.title_en|striptags }}
+  {%- elif g.get('lang') == 'de' and block.title_de %}
+    {{ block.title_de|striptags }}
+  {%- elif g.get('lang') == 'ru' and block.title_ru %}
+    {{ block.title_ru|striptags }}
+  {%- else %}
+    {{ block.title|striptags or '' }}
+  {%- endif %}
+{%- endmacro %}
+
+{% macro get_blog_block_summary(block) -%}
+  {# Используем фильтр striptags для удаления HTML-тегов #}
+  {%- if g.get('lang') == 'en' and block.summary_en %}
+    {{ block.summary_en|striptags }}
+  {%- elif g.get('lang') == 'de' and block.summary_de %}
+    {{ block.summary_de|striptags }}
+  {%- elif g.get('lang') == 'ru' and block.summary_ru %}
+    {{ block.summary_ru|striptags }}
+  {%- else %}
+    {{ block.summary|striptags or '' }}
+  {%- endif %}
+{%- endmacro %}
+
+{% macro get_blog_block_content(block) -%}
+  {%- if g.get('lang') == 'en' and block.content_en %}
+    {{ block.content_en }}
+  {%- elif g.get('lang') == 'de' and block.content_de %}
+    {{ block.content_de }}
+  {%- elif g.get('lang') == 'ru' and block.content_ru %}
+    {{ block.content_ru }}
+  {%- else %}
+    {{ block.content or '' }}
+  {%- endif %}
+{%- endmacro %}

@@ -1,0 +1,1 @@
+Homepage template syntax fix verified on: verify_template_fix.py

@@ -1,0 +1,98 @@
+/* Стили для информационного блока о проекте на главной странице */
+.project-info-section {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  padding: 3rem 0;
+}
+
+.project-info-card {
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.project-info-card:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+}
+
+.project-logo {
+  max-height: 200px;
+  margin-bottom: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.project-description {
+  font-size: 1.1rem;
+  color: #444;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+
+.project-description p {
+  margin-bottom: 1.2rem;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card i {
+  font-size: 2.5rem;
+  color: #6a11cb;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.feature-card p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.feature-card .btn {
+  align-self: center;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .project-info-card {
+    padding: 2rem;
+  }
+  
+  .project-description {
+    font-size: 1rem;
+  }
+  
+  .feature-card {
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+  }
+}

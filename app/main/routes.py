@@ -117,51 +117,25 @@ def get_blog_block_summary(block):
 
 @main.route('/')
 def index():
-    """Головна сторінка з блоками різних астрологічних систем"""
-    # Получаем только главный блок (is_top=True)
+    """Головна сторінка з інформацією про проект"""
+    # Получаем только главный блок (is_top=True) - информационный блок о проекте
     top_block = Block.query.filter_by(is_active=True, is_top=True).first()
-    settings = Settings.query.first()
     
-    # Импортируем функцию для очистки HTML
-    from app.utils.text_utils import strip_html_tags
-    
-    # Получаем активные блоки блога для гороскопов
-    from app.models import BlogBlock
-    from app.blog.routes import get_blog_block_title, get_blog_block_content
-    
-    # Функция для получения краткого содержания блога с очисткой HTML
-    def get_blog_block_summary(block):
-        lang = g.get('lang', session.get('lang', 'uk'))
-        if lang == 'uk':
-            summary = block.summary_ua if block.summary_ua else block.summary
-        elif lang == 'en' and block.summary_en:
-            summary = block.summary_en
-        elif lang == 'de' and block.summary_de:
-            summary = block.summary_de
-        elif lang == 'ru' and block.summary_ru:
-            summary = block.summary_ru
-        else:
-            summary = block.summary
-        return strip_html_tags(summary)
-    
-    # Получаем 8 гороскопных блоков (позиции 1-8)
-    astrology_blocks = BlogBlock.query.filter_by(is_active=True).filter(BlogBlock.position <= 8).order_by(BlogBlock.position).all()
-    
-    # Получаем последние активные продукты для блока магазина
+    # Получаем избранные товары для секции магазина (максимум 3)
     featured_products = Product.query.filter_by(is_active=True).order_by(Product.created_at.desc()).limit(3).all()
     
-    # Если есть главный блок, создаем массив блоков для совместимости с шаблоном
-    blocks = [top_block] if top_block else []
+    # Получаем настройки сайта
+    settings = Settings.query.first()
     
-    # Обязательно передаем все вспомогательные функции для локализации
-    return render_template('index.html', blocks=blocks, settings=settings, 
-                           astrology_blocks=astrology_blocks, # новая переменная для гороскопов
+    # Обязательно передаем вспомогательные функции для локализации
+    return render_template('index.html', 
+                           top_block=top_block,
                            featured_products=featured_products,
+                           settings=settings,
                            get_block_title=get_block_title,
                            get_block_content=get_block_content,
-                           get_blog_block_title=get_blog_block_title,
-                           get_blog_block_content=get_blog_block_content,
-                           get_blog_block_summary=get_blog_block_summary)
+                           get_product_name=get_product_name,
+                           get_product_description=get_product_description)
 
 @main.route('/block/<slug>')
 def block_detail(slug):
