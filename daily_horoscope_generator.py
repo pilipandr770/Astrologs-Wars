@@ -12,6 +12,7 @@ from flask import current_app
 import io
 from werkzeug.utils import secure_filename
 import pytz
+import re
 
 # Импорты для астрологических расчетов
 import ephem
@@ -20,6 +21,7 @@ from app import create_app, db
 from app.models import BlogBlock
 from app.blog_automation.models import ContentGenerationLog
 from app.utils.file_utils import save_uploaded_file
+from app.utils.text_utils import strip_html_tags
 
 # Настройка логгирования
 logging.basicConfig(
@@ -464,7 +466,9 @@ class HoroscopeGenerator:
         # Обновляем контент
         blog_block.title = title
         blog_block.content = content
-        blog_block.summary = content[:200] + "..." if len(content) > 200 else content
+        # Очищаем summary от markdown и html
+        summary_clean = strip_html_tags(re.sub(r'```.*?```', '', content, flags=re.DOTALL))
+        blog_block.summary = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
         blog_block.updated_at = datetime.utcnow()
         
         # Переводим контент
@@ -485,7 +489,8 @@ class HoroscopeGenerator:
             if uk_result:
                 blog_block.title_ua = f"{blog_block.title} (UK)"
                 blog_block.content_ua = uk_result
-                blog_block.summary_ua = uk_result[:200] + "..." if len(uk_result) > 200 else uk_result
+                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', uk_result, flags=re.DOTALL))
+                blog_block.summary_ua = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
                 logger.info("Контент переведен на украинский")
             
             # Переводим на английский
@@ -493,7 +498,8 @@ class HoroscopeGenerator:
             if en_result:
                 blog_block.title_en = f"{blog_block.title} (EN)"
                 blog_block.content_en = en_result
-                blog_block.summary_en = en_result[:200] + "..." if len(en_result) > 200 else en_result
+                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', en_result, flags=re.DOTALL))
+                blog_block.summary_en = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
                 logger.info("Контент переведен на английский")
             
             # Переводим на немецкий
@@ -501,7 +507,8 @@ class HoroscopeGenerator:
             if de_result:
                 blog_block.title_de = f"{blog_block.title} (DE)"
                 blog_block.content_de = de_result
-                blog_block.summary_de = de_result[:200] + "..." if len(de_result) > 200 else de_result
+                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', de_result, flags=re.DOTALL))
+                blog_block.summary_de = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
                 logger.info("Контент переведен на немецкий")
             
             # Переводим на русский
@@ -509,7 +516,8 @@ class HoroscopeGenerator:
             if ru_result:
                 blog_block.title_ru = f"{blog_block.title} (RU)"
                 blog_block.content_ru = ru_result
-                blog_block.summary_ru = ru_result[:200] + "..." if len(ru_result) > 200 else ru_result
+                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', ru_result, flags=re.DOTALL))
+                blog_block.summary_ru = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
                 logger.info("Контент переведен на русский")
                 
         except Exception as e:

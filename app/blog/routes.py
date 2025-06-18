@@ -42,18 +42,19 @@ def get_blog_block_summary(block):
     from app.utils.text_utils import strip_html_tags
 
     lang = g.get('lang', session.get('lang', 'uk'))
+    summary = ''
     if lang == 'uk':
-        summary = block.summary_ua if block.summary_ua else block.summary
-    elif lang == 'en' and block.summary_en:
+        summary = block.summary_ua or block.summary or ''
+    elif lang == 'en' and getattr(block, 'summary_en', None):
         summary = block.summary_en
-    elif lang == 'de' and block.summary_de:
+    elif lang == 'de' and getattr(block, 'summary_de', None):
         summary = block.summary_de
-    elif lang == 'ru' and block.summary_ru:
+    elif lang == 'ru' and getattr(block, 'summary_ru', None):
         summary = block.summary_ru
-    else:
+    elif hasattr(block, 'summary'):
         summary = block.summary or ''
     # Удаляем markdown-блоки кода ```...```
-    summary_no_code = re.sub(r'```.*?```', '', summary, flags=re.DOTALL)
+    summary_no_code = re.sub(r'```.*?```', '', summary or '', flags=re.DOTALL)
     # Удаляем HTML теги
     clean_summary = strip_html_tags(summary_no_code)
     return clean_summary[:200] + '...' if len(clean_summary) > 200 else clean_summary
