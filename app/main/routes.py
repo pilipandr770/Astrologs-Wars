@@ -118,16 +118,18 @@ def get_blog_block_summary(block):
 @main.route('/')
 def index():
     """Головна сторінка з блоками різних астрологічних систем"""
-    blocks = Block.query.filter_by(is_active=True).order_by(Block.order).all()
+    # Получаем только главный блок (is_top=True)
+    top_block = Block.query.filter_by(is_active=True, is_top=True).first()
     settings = Settings.query.first()
     
     # Импортируем функцию для очистки HTML
     from app.utils.text_utils import strip_html_tags
     
-    # Получаем активные блоки блога
+    # Получаем активные блоки блога для гороскопов
     from app.models import BlogBlock
     from app.blog.routes import get_blog_block_title, get_blog_block_content
-    # Используем локальную версию get_blog_block_summary с очисткой HTML
+    
+    # Функция для получения краткого содержания блога с очисткой HTML
     def get_blog_block_summary(block):
         lang = g.get('lang', session.get('lang', 'uk'))
         if lang == 'uk':
@@ -142,15 +144,18 @@ def index():
             summary = block.summary
         return strip_html_tags(summary)
     
-    # Получаем 7 блоков блога для разных астрологических систем
-    recent_blog_blocks = BlogBlock.query.filter_by(is_active=True).order_by(BlogBlock.position).limit(7).all()
+    # Получаем 8 гороскопных блоков (позиции 1-8)
+    astrology_blocks = BlogBlock.query.filter_by(is_active=True).filter(BlogBlock.position <= 8).order_by(BlogBlock.position).all()
     
     # Получаем последние активные продукты для блока магазина
     featured_products = Product.query.filter_by(is_active=True).order_by(Product.created_at.desc()).limit(3).all()
     
+    # Если есть главный блок, создаем массив блоков для совместимости с шаблоном
+    blocks = [top_block] if top_block else []
+    
     # Обязательно передаем все вспомогательные функции для локализации
     return render_template('index.html', blocks=blocks, settings=settings, 
-                           recent_blog_blocks=recent_blog_blocks,
+                           astrology_blocks=astrology_blocks, # новая переменная для гороскопов
                            featured_products=featured_products,
                            get_block_title=get_block_title,
                            get_block_content=get_block_content,

@@ -1,7 +1,7 @@
-services:
+﻿services:
   - type: web
     name: astrolog-web
-    runtime: python
+    runtime: python    
     region: frankfurt
     buildCommand: bash build_render.sh
     startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --preload
@@ -43,14 +43,50 @@ services:
         sync: false
       - key: PLANETARY_ASTROLOGY_ASSISTANT_ID
         sync: false
-      # Telegram notifications (optional)
+      # Telegram configuration (optional)
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: TELEGRAM_CHANNEL_NAME
         sync: false
-
-databases:
-  - name: ittoken-db
-    databaseName: astro_blog_db
-    user: ittoken_db_user
+  
+  - type: cron
+    name: astrolog-horoscope-generator
+    runtime: python
+    region: frankfurt
+    schedule: "0 0 * * *"  # Run once a day at midnight
+    buildCommand: pip install -r requirements.txt
+    startCommand: python daily_horoscope_generator.py
+    envVars:
+      - key: DATABASE_URL
+        value: "postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.oregon-postgres.render.com/astro_blog_db"
+      # OpenAI API key
+      - key: OPENAI_API_KEY
+        sync: false
+      # Assistants for horoscope systems
+      - key: OPENAI_TRANSLATION_ASSISTANT_ID
+        sync: false
+      - key: EUROPEAN_ASTROLOGY_ASSISTANT_ID
+        sync: false
+      - key: CHINESE_ASTROLOGY_ASSISTANT_ID
+        sync: false
+      - key: INDIAN_ASTROLOGY_ASSISTANT_ID
+        sync: false
+      - key: LAL_KITAB_ASSISTANT_ID
+        sync: false
+      - key: JYOTISH_ASSISTANT_ID
+        sync: false
+      - key: NUMEROLOGY_ASSISTANT_ID
+        sync: false
+      - key: TAROT_ASSISTANT_ID
+        sync: false
+      - key: PLANETARY_ASTROLOGY_ASSISTANT_ID
+        sync: false
+      # Telegram configuration (optional)
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHANNEL_NAME
+        sync: false
+    
+  - type: redis
+    name: astrolog-cache
     ipAllowList: []

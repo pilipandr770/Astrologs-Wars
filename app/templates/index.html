@@ -16,66 +16,37 @@
       {% endif %}
       <h3>{{ get_block_title(top_block) }}</h3>
       <p>{{ get_block_content(top_block)|safe }}</p>
-    </div>
-  {% endif %}
+    </div>  {% endif %}
   
-  {# --- Блок з останніми блоками блогу --- #}
-  {% if recent_blog_blocks %}
-  <div class="block-card blog-block">
-    <h3>
-      {% if g.get('lang') == 'en' %}
-        {{ _('Latest Blog Articles') }}
-      {% elif g.get('lang') == 'de' %}
-        {{ _('Neueste Blogartikel') }}
-      {% elif g.get('lang') == 'ru' %}
-        {{ _('Последние статьи блога') }}
-      {% else %}
-        {{ _('Останні статті з блогу') }}
-      {% endif %}
-    </h3>
-    <div class="recent-blog-posts">
-      {% for block in recent_blog_blocks %}      <div class="recent-post">
+  {# --- БЛОКИ ГОРОСКОПОВ --- #}
+  {% if astrology_blocks %}
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 mb-4">
+    {% for block in astrology_blocks %}
+    <div class="col">
+      <div class="block-card horoscope-block h-100" onclick="window.location='{{ url_for('blog.block_detail', position=block.position) }}'">
         {% if block.featured_image %}
-        <div class="post-image">
-          <img src="{{ url_for('static', filename='uploads/blog/' + block.featured_image) }}" 
-               alt="{{ block.title }}" class="img-fluid rounded"
-               onerror="this.src='{{ url_for('static', filename='uploads/' + block.featured_image) }}'">
-        </div>
+        <img src="{{ url_for('static', filename='uploads/blog/' + block.featured_image) }}" 
+             alt="{{ get_blog_block_title(block) }}" class="card-img-top"
+             onerror="this.src='{{ url_for('static', filename='uploads/' + block.featured_image) }}'">
         {% endif %}
-        <div class="post-info">
-          <h4>{{ get_blog_block_title(block) }}</h4>
-          <p class="post-summary">{{ get_blog_block_summary(block) }}</p>
-          <div class="mt-auto">
-            <a href="{{ url_for('blog.block_detail', position=block.position) }}" class="btn btn-outline-primary btn-sm">
-              {% if g.get('lang') == 'en' %}
-                {{ _('Read more') }}
-              {% elif g.get('lang') == 'de' %}
-                {{ _('Mehr lesen') }}
-              {% elif g.get('lang') == 'ru' %}
-                {{ _('Читать далее') }}
-              {% else %}
-                {{ _('Читати далі') }}
-              {% endif %}
-            </a>
-          </div>
+        <h3>{{ get_blog_block_title(block) }}</h3>
+        <p>{{ get_blog_block_summary(block)|safe }}</p>
+        <div class="text-center mt-auto">
+          <a href="{{ url_for('blog.block_detail', position=block.position) }}" class="btn btn-outline-primary">
+            {% if g.get('lang') == 'en' %}
+              {{ _('Read more') }}
+            {% elif g.get('lang') == 'de' %}
+              {{ _('Mehr lesen') }}
+            {% elif g.get('lang') == 'ru' %}
+              {{ _('Читать далее') }}
+            {% else %}
+              {{ _('Читати далі') }}
+            {% endif %}
+          </a>
         </div>
       </div>
-      {% if not loop.last %}<hr>{% endif %}
-      {% endfor %}
     </div>
-    <div class="text-center mt-3">
-      <a href="{{ url_for('blog.index') }}" class="btn btn-primary">
-        {% if g.get('lang') == 'en' %}
-          {{ _('Go to Blog') }}
-        {% elif g.get('lang') == 'de' %}
-          {{ _('Zum Blog') }}
-        {% elif g.get('lang') == 'ru' %}
-          {{ _('Перейти в блог') }}
-        {% else %}
-          {{ _('Перейти до блогу') }}
-        {% endif %}
-      </a>
-    </div>
+    {% endfor %}
   </div>
   {% endif %}
   

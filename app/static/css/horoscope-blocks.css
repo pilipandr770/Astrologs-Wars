@@ -1,0 +1,42 @@
+/* Стили для блоков гороскопов на главной странице */
+.horoscope-block {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  height: 100%;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.horoscope-block:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.horoscope-block h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.horoscope-block p {
+  font-size: 0.9rem;
+  color: #666;
+  flex-grow: 1;
+  margin-bottom: 15px;
+}
+
+.horoscope-block img {
+  border-radius: 8px;
+  margin-bottom: 12px;
+  height: 150px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.horoscope-block .btn {
+  align-self: center;
+}
