@@ -11,9 +11,8 @@ from datetime import datetime
 
 from app.blog import blog_bp
 
-# Вспомогательные функции для получения локализованного контента блога
-def get_blog_block_title(block):
-    """Получает заголовок блока блога в текущем языке"""
+# inспомогательные функциand for получения локализоinанного контента блога
+def get_blog_block_title(block):    """Получает заголоinок блока блога in текущем языке"""
     lang = g.get('lang', session.get('lang', 'uk'))
     if lang == 'uk':
         # Prefer title_ua if available, otherwise use the primary title
@@ -24,17 +23,10 @@ def get_blog_block_title(block):
         return block.title_de
     elif lang == 'ru' and block.title_ru:
         return block.title_ru
-    return block.title_ua if block.title_ua else block.title
-    elif lang == 'en' and block.title_en:
-        return block.title_en
-    elif lang == 'de' and block.title_de:
-        return block.title_de
-    elif lang == 'ru' and block.title_ru:
-        return block.title_ru
     return block.title
 
 def get_blog_block_content(block):
-    """Получает содержимое блока блога в текущем языке"""
+    """Получает содержимое блока блога in текущем языке"""
     lang = g.get('lang', session.get('lang', 'uk'))
     if lang == 'uk':
         # Prefer content_ua if available, otherwise use the primary content
@@ -48,7 +40,7 @@ def get_blog_block_content(block):
     return block.content
 
 def get_blog_block_summary(block):
-    """Получает краткое описание блока блога в текущем языке"""
+    """Получает краткое описание блока блога in текущем языке"""
     from app.utils.text_utils import strip_html_tags
     
     lang = g.get('lang', session.get('lang', 'uk'))
@@ -146,7 +138,7 @@ def edit_block(id):
                 block.featured_image = filename
         
         db.session.commit()
-        flash('Блок успешно обновлен!', 'success')
+        flash('Блок успешно обноinлен!', 'success')
         return redirect(url_for('blog.admin_dashboard'))
     
     return render_template('blog/admin/edit_block.html', form=form, block=block)
