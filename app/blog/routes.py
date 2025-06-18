@@ -38,6 +38,7 @@ def get_blog_block_content(block):
 
 def get_blog_block_summary(block):
     """Получает краткое описание блока блога в текущем языке"""
+    import re
     from app.utils.text_utils import strip_html_tags
 
     lang = g.get('lang', session.get('lang', 'uk'))
@@ -51,8 +52,10 @@ def get_blog_block_summary(block):
         summary = block.summary_ru
     else:
         summary = block.summary or ''
-    
-    clean_summary = strip_html_tags(summary)
+    # Удаляем markdown-блоки кода ```...```
+    summary_no_code = re.sub(r'```.*?```', '', summary, flags=re.DOTALL)
+    # Удаляем HTML теги
+    clean_summary = strip_html_tags(summary_no_code)
     return clean_summary[:200] + '...' if len(clean_summary) > 200 else clean_summary
 
 @blog_bp.route('/')
