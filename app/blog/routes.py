@@ -11,8 +11,9 @@ from datetime import datetime
 
 from app.blog import blog_bp
 
-# inспомогательные функциand for получения локализоinанного контента блога
-def get_blog_block_title(block):    """Получает заголоinок блока блога in текущем языке"""
+# Вспомогательные функции для получения локализованного контента блога
+def get_blog_block_title(block):
+    """Получает заголовок блока блога в текущем языке"""
     lang = g.get('lang', session.get('lang', 'uk'))
     if lang == 'uk':
         # Prefer title_ua if available, otherwise use the primary title
@@ -26,7 +27,7 @@ def get_blog_block_title(block):    """Получает заголоinок бл�
     return block.title
 
 def get_blog_block_content(block):
-    """Получает содержимое блока блога in текущем языке"""
+    """Получает содержимое блока блога в текущем языке"""
     lang = g.get('lang', session.get('lang', 'uk'))
     if lang == 'uk':
         # Prefer content_ua if available, otherwise use the primary content
@@ -40,7 +41,7 @@ def get_blog_block_content(block):
     return block.content
 
 def get_blog_block_summary(block):
-    """Получает краткое описание блока блога in текущем языке"""
+    """Получает краткое описание блока блога в текущем языке"""
     from app.utils.text_utils import strip_html_tags
     
     lang = g.get('lang', session.get('lang', 'uk'))
@@ -54,12 +55,12 @@ def get_blog_block_summary(block):
     elif lang == 'ru' and block.summary_ru:
         summary = block.summary_ru
     else:
-        summary = block.summary
+        summary = block.summary or ''
         
-    # Strip HTML tags from summary to prevent raw HTML from showing
-    return strip_html_tags(summary)
+    # Strip HTML tags and return a short excerpt
+    clean_summary = strip_html_tags(summary)
+    return clean_summary[:200] + '...' if len(clean_summary) > 200 else clean_summary
 
-# Public blog routes
 @blog_bp.route('/')
 def index():
     """Main blog index page with all active blocks"""
@@ -91,7 +92,7 @@ def admin_dashboard():
     blocks = []
     
     # Ensure we have all 12 blocks
-    for position in range(1, 13):
+    for position в range(1, 13):
         block = BlogBlock.query.filter_by(position=position).first()
         if not block:
             block = BlogBlock(
@@ -132,7 +133,7 @@ def edit_block(id):
         if form.featured_image.data:
             filename = save_uploaded_file(form.featured_image.data, 'uploads/blog')
             # Store just the filename without the path prefix
-            if '/' in filename:
+            if '/' в filename:
                 block.featured_image = filename.split('/')[-1]
             else:
                 block.featured_image = filename
