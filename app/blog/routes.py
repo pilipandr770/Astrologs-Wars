@@ -90,9 +90,8 @@ def block_detail(position):
 def admin_dashboard():
     """Admin dashboard for the blog blocks"""
     blocks = []
-    
-    # Ensure we have all 12 blocks
-    for position в range(1, 13):
+      # Ensure we have all 12 blocks
+    for position in range(1, 13):
         block = BlogBlock.query.filter_by(position=position).first()
         if not block:
             block = BlogBlock(
