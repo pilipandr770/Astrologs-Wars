@@ -11,7 +11,6 @@ requests
 openai
 python-dotenv
 email_validator
-web3
 psycopg2-binary
 markdown
 bleach

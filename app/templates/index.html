@@ -17,36 +17,82 @@
       <h3>{{ get_block_title(top_block) }}</h3>
       <p>{{ get_block_content(top_block)|safe }}</p>
     </div>  {% endif %}
-  
-  {# --- БЛОКИ ГОРОСКОПОВ --- #}
+    {# --- БЛОКИ ГОРОСКОПОВ --- #}
   {% if astrology_blocks %}
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 mb-4">
-    {% for block in astrology_blocks %}
-    <div class="col">
-      <div class="block-card horoscope-block h-100" onclick="window.location='{{ url_for('blog.block_detail', position=block.position) }}'">
-        {% if block.featured_image %}
-        <img src="{{ url_for('static', filename='uploads/blog/' + block.featured_image) }}" 
-             alt="{{ get_blog_block_title(block) }}" class="card-img-top"
-             onerror="this.src='{{ url_for('static', filename='uploads/' + block.featured_image) }}'">
+  <div class="horoscope-section mt-4 mb-5">
+    <div class="container">
+      <h2 class="text-center mb-4 horoscope-section-title">
+        {% if g.get('lang') == 'en' %}
+          {{ _('Daily Horoscopes') }}
+        {% elif g.get('lang') == 'de' %}
+          {{ _('Tägliche Horoskope') }}
+        {% elif g.get('lang') == 'ru' %}
+          {{ _('Ежедневные гороскопы') }}
+        {% else %}
+          {{ _('Щоденні гороскопи') }}
         {% endif %}
-        <h3>{{ get_blog_block_title(block) }}</h3>
-        <p>{{ get_blog_block_summary(block)|safe }}</p>
-        <div class="text-center mt-auto">
-          <a href="{{ url_for('blog.block_detail', position=block.position) }}" class="btn btn-outline-primary">
-            {% if g.get('lang') == 'en' %}
-              {{ _('Read more') }}
-            {% elif g.get('lang') == 'de' %}
-              {{ _('Mehr lesen') }}
-            {% elif g.get('lang') == 'ru' %}
-              {{ _('Читать далее') }}
-            {% else %}
-              {{ _('Читати далі') }}
+      </h2>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 mb-4">
+        {% for block in astrology_blocks %}
+        <div class="col">
+          <div class="block-card horoscope-block h-100" onclick="window.location='{{ url_for('blog.block_detail', position=block.position) }}'">
+            {% if block.featured_image %}
+            <img src="{{ url_for('static', filename='uploads/blog/' + block.featured_image) }}" 
+                alt="{{ get_blog_block_title(block) }}" class="card-img-top"
+                onerror="this.src='{{ url_for('static', filename='uploads/' + block.featured_image) }}'">
             {% endif %}
-          </a>
+            <h3>{{ get_blog_block_title(block) }}</h3>
+            <p>{{ get_blog_block_summary(block)|safe }}</p>
+            <div class="text-center mt-auto">
+              <a href="{{ url_for('blog.block_detail', position=block.position) }}" class="btn btn-outline-primary">
+                {% if g.get('lang') == 'en' %}
+                  {{ _('Read more') }}
+                {% elif g.get('lang') == 'de' %}
+                  {{ _('Mehr lesen') }}
+                {% elif g.get('lang') == 'ru' %}
+                  {{ _('Читать далее') }}
+                {% else %}
+                  {{ _('Читати далі') }}
+                {% endif %}
+              </a>
+            </div>
+          </div>
         </div>
+        {% endfor %}
       </div>
     </div>
-    {% endfor %}
+  </div>
+  {% endif %}
+      </h2>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 mb-4">
+        {% for block in astrology_blocks %}
+        <div class="col">
+          <div class="block-card horoscope-block h-100" onclick="window.location='{{ url_for('blog.block_detail', position=block.position) }}'">
+            {% if block.featured_image %}
+            <img src="{{ url_for('static', filename='uploads/blog/' + block.featured_image) }}" 
+                alt="{{ get_blog_block_title(block) }}" class="card-img-top"
+                onerror="this.src='{{ url_for('static', filename='uploads/' + block.featured_image) }}'">
+            {% endif %}
+            <h3>{{ get_blog_block_title(block) }}</h3>
+            <p>{{ get_blog_block_summary(block)|safe }}</p>
+            <div class="text-center mt-auto">
+              <a href="{{ url_for('blog.block_detail', position=block.position) }}" class="btn btn-outline-primary">
+                {% if g.get('lang') == 'en' %}
+                  {{ _('Read more') }}
+                {% elif g.get('lang') == 'de' %}
+                  {{ _('Mehr lesen') }}
+                {% elif g.get('lang') == 'ru' %}
+                  {{ _('Читать далее') }}
+                {% else %}
+                  {{ _('Читати далі') }}
+                {% endif %}
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
   </div>
   {% endif %}
   
