@@ -1,4 +1,37 @@
-{% extends 'base.html' %}
+#!/usr/bin/env python3
+"""
+Script to fix the Jinja2 template syntax error in index.html
+"""
+import os
+import re
+
+def fix_template_syntax():
+    """Fix template syntax issues in index.html"""
+    # Get the base path for the project
+    base_path = os.getcwd()
+    
+    print(f"Working in directory: {base_path}")
+    
+    # Path to the index.html template
+    template_path = os.path.join(base_path, 'app', 'templates', 'index.html')
+    
+    # Read the current template content
+    with open(template_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+
+    # Create a backup of the original file
+    backup_path = template_path + '.bak'
+    with open(backup_path, 'w', encoding='utf-8') as file:
+        file.write(content)
+    print(f"Created backup of original template at: {backup_path}")
+
+    # Fix the template by making sure we only have {% block %} with {% endblock %} 
+    # and {% if %} with {% endif %}
+    
+    # Simplified template that only shows:
+    # 1. Top admin-editable block (with image, title, topic, and body)
+    # 2. Shop section at the bottom
+    fixed_content = """{% extends 'base.html' %}
 {% block title %}{{ _('Головна') }}{% endblock %}
 
 {% block content %}
@@ -194,4 +227,13 @@
   {%- else %}
     {{ block.content or '' }}
   {%- endif %}
-{%- endmacro %}
+{%- endmacro %}"""
+
+    # Write the fixed template content
+    with open(template_path, 'w', encoding='utf-8') as file:
+        file.write(fixed_content)
+    
+    print(f"Fixed template syntax in: {template_path}")
+
+if __name__ == "__main__":
+    fix_template_syntax()
