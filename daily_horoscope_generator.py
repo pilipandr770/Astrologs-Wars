@@ -454,11 +454,11 @@ class HoroscopeGenerator:
             # Создаем тред для общения с ассистентом
             thread = self.client.beta.threads.create()
             
-            # Добавляем сообщение
-            self.client.beta.threads.messages.create(
+            # Добавляем сообщение            self.client.beta.threads.messages.create(
                 thread_id=thread.id,
                 role="user",
-                content=prompt            )
+                content=prompt
+            )
             # Запускаем ассистента
             run = self.client.beta.threads.runs.create(
                 thread_id=thread.id,
@@ -466,13 +466,13 @@ class HoroscopeGenerator:
             )
             
             # Ожидаем завершения
-            response = self._wait_for_run(thread.id, run.id)
-            if not response or not response.get('success'):
+            response = self._wait_for_run(thread.id, run.id)            if not response or not response.get('success'):
                 logger.error(f"Ошибка при работе с ассистентом: {response.get('error')}")
                 return None
                 
             return response.get('content')
-              except Exception as e:
+            
+        except Exception as e:
             logger.error(f"Ошибка при генерации гороскопа: {str(e)}")
             return None
     
