@@ -472,9 +472,9 @@ class HoroscopeGenerator:
                 return None
                 
             return response.get('content')
-            
-        except Exception as e:
-            logger.error(f"Ошибка при генерации гороскопа: {str(e)}")            return None
+              except Exception as e:
+            logger.error(f"Ошибка при генерации гороскопа: {str(e)}")
+            return None
     
     def update_blog(self, system, content):
         """Обновляет блог с новым контентом"""
