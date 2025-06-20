@@ -458,9 +458,8 @@ class HoroscopeGenerator:
             self.client.beta.threads.messages.create(
                 thread_id=thread.id,
                 role="user",
-                content=prompt
-            )
-              # Запускаем ассистента
+                content=prompt            )
+            # Запускаем ассистента
             run = self.client.beta.threads.runs.create(
                 thread_id=thread.id,
                 assistant_id=system['assistant_id_value']
@@ -475,9 +474,9 @@ class HoroscopeGenerator:
             return response.get('content')
             
         except Exception as e:
-            logger.error(f"Ошибка при генерации гороскопа: {str(e)}")
-            return None
-      def update_blog(self, system, content):
+            logger.error(f"Ошибка при генерации гороскопа: {str(e)}")            return None
+    
+    def update_blog(self, system, content):
         """Обновляет блог с новым контентом"""
         # Находим блок по позиции
         blog_block = BlogBlock.query.filter_by(position=system['position']).first()
