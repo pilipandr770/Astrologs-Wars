@@ -73,7 +73,8 @@ ASTRO_SYSTEMS = [
         'name_en': 'European Astrology',
         'name_de': 'Europäische Astrologie',
         'name_ru': 'Европейская астрология',
-    },    {
+    },    
+    {
         'name': 'Китайська астрологія',
         'position': 2,
         'assistant_id': 'CHINESE_ASTROLOGY_ASSISTANT_ID',
@@ -82,7 +83,8 @@ ASTRO_SYSTEMS = [
         'name_en': 'Chinese Astrology',
         'name_de': 'Chinesische Astrologie',
         'name_ru': 'Китайская астрология',
-    },    {
+    },    
+    {
         'name': 'Індійська астрологія',
         'position': 3,
         'assistant_id': 'INDIAN_ASTROLOGY_ASSISTANT_ID',
@@ -91,7 +93,8 @@ ASTRO_SYSTEMS = [
         'name_en': 'Indian Astrology',
         'name_de': 'Indische Astrologie',
         'name_ru': 'Индийская астрология',
-    },    {
+    },    
+    {
         'name': 'Лал Кітаб',
         'position': 4,
         'assistant_id': 'LAL_KITAB_ASSISTANT_ID',
@@ -100,7 +103,8 @@ ASTRO_SYSTEMS = [
         'name_en': 'Lal Kitab',
         'name_de': 'Lal Kitab',
         'name_ru': 'Лал Китаб',
-    },    {
+    },    
+    {
         'name': 'Джйотіш',
         'position': 5,
         'assistant_id': 'JYOTISH_ASSISTANT_ID',
@@ -109,7 +113,8 @@ ASTRO_SYSTEMS = [
         'name_en': 'Jyotish',
         'name_de': 'Jyotish',
         'name_ru': 'Джйотиш',
-    },    {
+    },    
+    {
         'name': 'Нумерологія',
         'position': 6,
         'assistant_id': 'NUMEROLOGY_ASSISTANT_ID',
@@ -118,7 +123,8 @@ ASTRO_SYSTEMS = [
         'name_en': 'Numerology',
         'name_de': 'Numerologie',
         'name_ru': 'Нумерология',
-    },    {
+    },    
+    {
         'name': 'Таро',
         'position': 7,
         'assistant_id': 'TAROT_ASSISTANT_ID',
@@ -127,7 +133,8 @@ ASTRO_SYSTEMS = [
         'name_en': 'Tarot',
         'name_de': 'Tarot',
         'name_ru': 'Таро',
-    },    {
+    },    
+    {
         'name': 'Планетарна астрологія',
         'position': 8,
         'assistant_id': 'PLANETARY_ASTROLOGY_ASSISTANT_ID',
@@ -453,18 +460,21 @@ class HoroscopeGenerator:
         try:
             # Создаем тред для общения с ассистентом
             thread = self.client.beta.threads.create()
-              # Добавляем сообщение
+            
+            # Добавляем сообщение
             self.client.beta.threads.messages.create(
                 thread_id=thread.id,
                 role="user",
                 content=prompt
             )
+            
             # Запускаем ассистента
             run = self.client.beta.threads.runs.create(
                 thread_id=thread.id,
                 assistant_id=system['assistant_id_value']
             )
-              # Ожидаем завершения
+            
+            # Ожидаем завершения
             response = self._wait_for_run(thread.id, run.id)
             if not response or not response.get('success'):
                 logger.error(f"Ошибка при работе с ассистентом: {response.get('error')}")
@@ -495,6 +505,7 @@ class HoroscopeGenerator:
         # Обновляем контент
         blog_block.title = title
         blog_block.content = clean_content
+        
         # Очищаем summary от markdown и html
         summary_clean = strip_html_tags(re.sub(r'```.*?```', '', clean_content, flags=re.DOTALL))
         blog_block.summary = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
@@ -505,11 +516,13 @@ class HoroscopeGenerator:
         
         # Генерируем изображение
         self._generate_image(blog_block, system)
-          # Сохраняем изменения
+        
+        # Сохраняем изменения
         db.session.commit()
         logger.info(f"Блог {system['name']} успешно обновлен")
         return True
-      def _translate_content(self, blog_block):
+    
+    def _translate_content(self, blog_block):
         """Переводит контент на другие языки"""
         try:
             # Переводим на украинский (основной язык)
@@ -608,7 +621,8 @@ class HoroscopeGenerator:
                 date = self._get_european_datetime()
                 planet_data = self._get_significant_planets()
                 date_str = date.strftime('%d.%m.%Y')
-            except:
+            except Exception as e:
+                logger.warning(f"Ошибка при получении данных планет для изображения: {str(e)}")
                 planet_data = ""
                 date_str = "текущей даты"
                 
