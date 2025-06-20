@@ -34,6 +34,34 @@ logging.basicConfig(
 )
 logger = logging.getLogger("daily_horoscope")
 
+# Функция для очистки HTML от DOCTYPE, html, head и body тегов
+def clean_html_wrapper(html_content):
+    """
+    Очищает HTML-контент от обрамляющих тегов DOCTYPE, html, head, body
+    чтобы предотвратить мерцание и дрожание блоков при рендере.
+    """
+    if not html_content:
+        return html_content
+        
+    # Удаляем DOCTYPE
+    content = re.sub(r'<!DOCTYPE[^>]*>', '', html_content)
+    # Удаляем открывающий html тег
+    content = re.sub(r'<html[^>]*>', '', content)
+    # Удаляем закрывающий html тег
+    content = re.sub(r'</html>', '', content)
+    # Удаляем тег head с содержимым
+    content = re.sub(r'<head>.*?</head>', '', content, flags=re.DOTALL)
+    # Удаляем открывающий body тег
+    content = re.sub(r'<body[^>]*>', '', content)
+    # Удаляем закрывающий body тег
+    content = re.sub(r'</body>', '', content)
+    
+    # Удаляем лишние пробелы и переносы строк
+    content = re.sub(r'^\s+', '', content)
+    content = re.sub(r'\s+$', '', content)
+    
+    return content
+
 # Астрологические системы с их особенностями и ассистентами
 ASTRO_SYSTEMS = [
     {
@@ -449,8 +477,7 @@ class HoroscopeGenerator:
         except Exception as e:
             logger.error(f"Ошибка при генерации гороскопа: {str(e)}")
             return None
-    
-    def update_blog(self, system, content):
+      def update_blog(self, system, content):
         """Обновляет блог с новым контентом"""
         # Находим блок по позиции
         blog_block = BlogBlock.query.filter_by(position=system['position']).first()
@@ -463,11 +490,14 @@ class HoroscopeGenerator:
         today = self._get_european_datetime().strftime('%d.%m.%Y')
         title = f"{system['name']} - прогноз на {today}"
         
+        # Очищаем контент от обрамляющих HTML-тегов перед сохранением
+        clean_content = clean_html_wrapper(content)
+        
         # Обновляем контент
         blog_block.title = title
-        blog_block.content = content
+        blog_block.content = clean_content
         # Очищаем summary от markdown и html
-        summary_clean = strip_html_tags(re.sub(r'```.*?```', '', content, flags=re.DOTALL))
+        summary_clean = strip_html_tags(re.sub(r'```.*?```', '', clean_content, flags=re.DOTALL))
         blog_block.summary = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
         blog_block.updated_at = datetime.utcnow()
         
@@ -480,16 +510,17 @@ class HoroscopeGenerator:
         db.session.commit()
         logger.info(f"Блог {system['name']} успешно обновлен")
         return True
-    
-    def _translate_content(self, blog_block):
+      def _translate_content(self, blog_block):
         """Переводит контент на другие языки"""
         try:
             # Переводим на украинский (основной язык)
             uk_result = self._translate_to_language(blog_block.content, "украинский")
             if uk_result:
                 blog_block.title_ua = f"{blog_block.title} (UK)"
-                blog_block.content_ua = uk_result
-                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', uk_result, flags=re.DOTALL))
+                # Очищаем результат перевода от обрамляющих HTML-тегов
+                clean_uk_result = clean_html_wrapper(uk_result)
+                blog_block.content_ua = clean_uk_result
+                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', clean_uk_result, flags=re.DOTALL))
                 blog_block.summary_ua = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
                 logger.info("Контент переведен на украинский")
             
@@ -497,8 +528,10 @@ class HoroscopeGenerator:
             en_result = self._translate_to_language(blog_block.content, "английский")
             if en_result:
                 blog_block.title_en = f"{blog_block.title} (EN)"
-                blog_block.content_en = en_result
-                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', en_result, flags=re.DOTALL))
+                # Очищаем результат перевода от обрамляющих HTML-тегов
+                clean_en_result = clean_html_wrapper(en_result)
+                blog_block.content_en = clean_en_result
+                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', clean_en_result, flags=re.DOTALL))
                 blog_block.summary_en = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
                 logger.info("Контент переведен на английский")
             
@@ -506,8 +539,10 @@ class HoroscopeGenerator:
             de_result = self._translate_to_language(blog_block.content, "немецкий")
             if de_result:
                 blog_block.title_de = f"{blog_block.title} (DE)"
-                blog_block.content_de = de_result
-                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', de_result, flags=re.DOTALL))
+                # Очищаем результат перевода от обрамляющих HTML-тегов
+                clean_de_result = clean_html_wrapper(de_result)
+                blog_block.content_de = clean_de_result
+                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', clean_de_result, flags=re.DOTALL))
                 blog_block.summary_de = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
                 logger.info("Контент переведен на немецкий")
             
@@ -515,8 +550,10 @@ class HoroscopeGenerator:
             ru_result = self._translate_to_language(blog_block.content, "русский")
             if ru_result:
                 blog_block.title_ru = f"{blog_block.title} (RU)"
-                blog_block.content_ru = ru_result
-                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', ru_result, flags=re.DOTALL))
+                # Очищаем результат перевода от обрамляющих HTML-тегов
+                clean_ru_result = clean_html_wrapper(ru_result)
+                blog_block.content_ru = clean_ru_result
+                summary_clean = strip_html_tags(re.sub(r'```.*?```', '', clean_ru_result, flags=re.DOTALL))
                 blog_block.summary_ru = summary_clean[:200] + "..." if len(summary_clean) > 200 else summary_clean
                 logger.info("Контент переведен на русский")
                 

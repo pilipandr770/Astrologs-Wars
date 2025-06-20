@@ -589,3 +589,10 @@ button[type="submit"], input[type="submit"] {
         border-radius: 16px;
     }
 }
+.horoscope-block {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+  position: static !important;
+}
