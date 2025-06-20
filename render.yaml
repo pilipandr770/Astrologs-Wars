@@ -55,10 +55,10 @@
     region: frankfurt
     schedule: "0 0 * * *"  # Run once a day at midnight
     buildCommand: pip install -r requirements.txt
-    startCommand: python daily_horoscope_generator.py
+    startCommand: python daily_horoscope_generator_fixed.py
     envVars:
       - key: DATABASE_URL
-        value: "postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.oregon-postgres.render.com/astro_blog_db"
+        value: "postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.oregon-postgres.render.com:5432/astro_blog_db"
       # OpenAI API key
       - key: OPENAI_API_KEY
         sync: false
