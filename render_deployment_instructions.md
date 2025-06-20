@@ -1,19 +1,18 @@
 # Render Deployment Instructions
 
-Follow these steps to deploy the database fixes to Render:
+Based on our testing directly on Render, we've identified and fixed the database connection issues. The problem was related to a trailing newline in the DATABASE_URL environment variable and a missing port specification. Our final script handles these issues automatically.
 
 ## 1. Push Code Changes to GitHub
 
 ```bash
 # Add all your changes to git
 git add render.yaml
-git add daily_horoscope_generator_fixed.py
+git add daily_horoscope_generator_final.py
 git add debug_database_connection.py
-git add create_database_if_missing.py
-git add database_fix_report.md
+git add SIMPLIFIED_FIX.md
 
 # Commit the changes
-git commit -m "Fix database connection issues and improve error handling"
+git commit -m "Fix database connection issues with auto-cleaning"
 
 # Push to your repository
 git push origin master
@@ -31,40 +30,34 @@ If you have automatic deployments set up on Render, the changes will be deployed
 2. Select your web service and click "Manual Deploy" > "Deploy latest commit"
 3. Wait for the deployment to complete
 
-## 3. Verify Database Connection
-
-1. View the logs for your web service on Render
-2. Check for any database connection errors
-3. If there are still errors, run the debug script on Render:
-
-```bash
-# SSH into your Render instance (if available) or use the Render shell
-python debug_database_connection.py
-```
-
-## 4. Test the Horoscope Generator
+## 3. Test the Horoscope Generator
 
 1. On the Render dashboard, go to your cron job service
 2. Click "Run Job Now" to manually trigger the horoscope generator
 3. Check the logs for any errors
 4. Verify that new horoscope blocks are created in the database
 
-## 5. Troubleshooting
+## 4. What's Been Fixed
 
-If you still encounter database connection issues:
+Our solution specifically addresses these issues:
 
-1. Double-check the database URL in the Render dashboard
-2. Ensure there are no spaces or newlines in the URL
-3. Verify the database exists on the PostgreSQL server
-4. Check that your IP is allowed to connect to the database
+1. **Trailing Newline**: The script now automatically strips any trailing whitespace and newlines from the DATABASE_URL
+2. **Missing Port**: If the port is missing, the script adds the default PostgreSQL port (5432)
+3. **Enhanced Logging**: Detailed logging to help diagnose any connection issues
+4. **Error Handling**: Better error handling throughout the script
+
+## 5. No Manual Environment Changes Needed
+
+Good news! You don't need to manually update the environment variables in Render. Our script handles the URL cleaning automatically.
 
 ## 6. Optional Cleanup
 
 Once everything is working:
 
-1. You can remove old backup files:
+1. You can remove old backup and intermediate files:
    - `daily_horoscope_generator.py.bak`
    - `daily_horoscope_generator.py.new`
    - `daily_horoscope_generator_old.py`
+   - `daily_horoscope_generator_fixed.py`
 
-2. Keep the new structured files for future reference and troubleshooting
+2. Keep the debug scripts for future reference and troubleshooting
