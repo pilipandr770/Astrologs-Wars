@@ -1,3 +1,7 @@
+# Updated on 2025-06-21 to use replacement mode horoscope generator
+
+# Updated on 2025-06-21 to use integrated horoscope generator with images
+
 """
 Скрипт для планирования ежедневной генерации гороскопов в 7:00 утра
 """
@@ -21,7 +25,7 @@ def run_horoscope_generation():
     """Запускает скрипт генерации гороскопов"""
     try:
         logger.info(f"Начало запуска генерации гороскопов: {datetime.now()}")
-        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'daily_horoscope_generator.py')
+        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'daily_horoscope_replace.py')
         
         # Запускаем скрипт генерации
         result = subprocess.run(['python', script_path], capture_output=True, text=True)

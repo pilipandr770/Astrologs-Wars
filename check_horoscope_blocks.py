@@ -11,12 +11,13 @@ def check_horoscope_blocks():
     
     with app.app_context():
         print("Checking horoscope blocks...")
-          # Check each position from 1 to 8
+        # Check each position from 1 to 8
         for position in range(1, 9):
             block = BlogBlock.query.filter_by(position=position).first()
             
             if not block:
-                print(f"Creating missing block for position {position}")                block = BlogBlock(
+                print(f"Creating missing block for position {position}")
+                block = BlogBlock(
                     title=f"Астрологічна система #{position}",
                     content=f"Текст для астрологічної системи #{position}",
                     summary=f"Короткий опис для астрологічної системи #{position}",
@@ -28,10 +29,8 @@ def check_horoscope_blocks():
             elif not block.is_active:
                 print(f"Activating block at position {position}")
                 block.is_active = True
-            
-        # Commit changes
+              # Commit changes
         db.session.commit()
-        
         # Count active blocks in positions 1-8
         active_count = BlogBlock.query.filter(
             BlogBlock.is_active == True,
@@ -39,7 +38,7 @@ def check_horoscope_blocks():
         ).count()
         
         print(f"Active horoscope blocks (positions 1-8): {active_count}")
-          # Check shop block (position 12)
+        # Check shop block (position 12)
         shop_block = BlogBlock.query.filter_by(position=12).first()
         if shop_block:
             print(f"Shop block exists, active: {shop_block.is_active}")

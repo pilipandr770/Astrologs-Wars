@@ -42,8 +42,7 @@
       - key: TAROT_ASSISTANT_ID
         sync: false
       - key: PLANETARY_ASTROLOGY_ASSISTANT_ID
-        sync: false
-      # Telegram configuration (optional)
+        sync: false      # Telegram configuration (optional)
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: TELEGRAM_CHANNEL_NAME
@@ -55,7 +54,7 @@
     region: frankfurt
     schedule: "0 0 * * *"  # Run once a day at midnight
     buildCommand: pip install -r requirements.txt
-    startCommand: python daily_horoscope_generator_compatible.py
+    startCommand: python daily_horoscope_replace.py
     envVars:
       - key: DATABASE_URL
         value: "postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.oregon-postgres.render.com:5432/astro_blog_db"
