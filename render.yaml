@@ -58,7 +58,7 @@
     name: astrolog-horoscope-generator
     runtime: python
     region: frankfurt
-    schedule: "0 0 * * *"  # Run once a day at midnight
+    schedule: "0 3 * * *"  # Run once a day at 3:00 AM
     buildCommand: pip install -r requirements.txt
     startCommand: python daily_horoscope_replace.py
     envVars:
@@ -69,6 +69,9 @@
         value: "true"
       # Translation setting (true/false)
       - key: USE_TRANSLATIONS
+        value: "true"
+      # Ephemeris data inclusion setting (true/false)
+      - key: USE_EPHEMERIS_DATA
         value: "true"
       # OpenAI API key
       - key: OPENAI_API_KEY

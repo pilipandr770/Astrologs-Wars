@@ -25,6 +25,9 @@ try:
     EPHEMERIS_AVAILABLE = True
 except ImportError:
     EPHEMERIS_AVAILABLE = False
+    
+# Check if ephemeris usage is enabled in environment
+USE_EPHEMERIS = os.getenv('USE_EPHEMERIS_DATA', 'true').lower() == 'true'
 import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -526,9 +529,9 @@ def generate_horoscope_content(system_name, position, current_date):
         # Format the date for the prompt
         prompt_date = current_date.strftime("%d.%m.%Y")
         
-        # Generate ephemeris data if available
+        # Generate ephemeris data if available and enabled
         ephemeris_info = ""
-        if EPHEMERIS_AVAILABLE:
+        if EPHEMERIS_AVAILABLE and USE_EPHEMERIS:
             try:
                 # Calculate planet positions for the horoscope date
                 logger.info(f"Calculating ephemeris data for {prompt_date}")
@@ -538,6 +541,10 @@ def generate_horoscope_content(system_name, position, current_date):
                 logger.info(f"Successfully calculated ephemeris data for {prompt_date}")
             except Exception as e:
                 logger.error(f"Error calculating ephemeris data: {str(e)}")
+        elif not USE_EPHEMERIS:
+            logger.info("Ephemeris data disabled by configuration (USE_EPHEMERIS_DATA=false)")
+        elif not EPHEMERIS_AVAILABLE:
+            logger.warning("Ephemeris module not available - cannot include astronomical data")
         
         # Create a message for the assistant
         client.beta.threads.messages.create(

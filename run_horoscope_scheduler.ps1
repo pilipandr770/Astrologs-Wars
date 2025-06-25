@@ -23,7 +23,7 @@ if ($scheduleInstalled -ne "True") {
 # Запускаем планировщик
 Write-Host ""
 Write-Host "Запускаем планировщик гороскопов..." -ForegroundColor Green
-Write-Host "Генерация будет выполняться каждый день в 7:00 утра." -ForegroundColor Cyan
+Write-Host "Генерация будет выполняться каждый день в 3:00 ночи." -ForegroundColor Cyan
 Write-Host "Для прекращения работы нажмите Ctrl+C." -ForegroundColor Cyan
 Write-Host ""
 
