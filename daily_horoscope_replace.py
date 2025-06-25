@@ -45,6 +45,31 @@ logger.info("Starting horoscope generator script with image creation and cleanup
 # Load environment variables
 load_dotenv()
 
+# Log OpenAI configuration
+if 'OPENAI_API_KEY' in os.environ:
+    logger.info("OPENAI_API_KEY is configured")
+else:
+    logger.warning("OPENAI_API_KEY is not configured - features will be limited")
+
+# Check for astrology assistant IDs
+assistant_ids = {
+    'EUROPEAN_ASTROLOGY_ASSISTANT_ID': os.environ.get('EUROPEAN_ASTROLOGY_ASSISTANT_ID'),
+    'CHINESE_ASTROLOGY_ASSISTANT_ID': os.environ.get('CHINESE_ASTROLOGY_ASSISTANT_ID'),
+    'INDIAN_ASTROLOGY_ASSISTANT_ID': os.environ.get('INDIAN_ASTROLOGY_ASSISTANT_ID'),
+    'LAL_KITAB_ASSISTANT_ID': os.environ.get('LAL_KITAB_ASSISTANT_ID'),
+    'JYOTISH_ASSISTANT_ID': os.environ.get('JYOTISH_ASSISTANT_ID'),
+    'NUMEROLOGY_ASSISTANT_ID': os.environ.get('NUMEROLOGY_ASSISTANT_ID'),
+    'TAROT_ASSISTANT_ID': os.environ.get('TAROT_ASSISTANT_ID'),
+    'PLANETARY_ASTROLOGY_ASSISTANT_ID': os.environ.get('PLANETARY_ASTROLOGY_ASSISTANT_ID')
+}
+
+# Log which assistant IDs are configured
+configured_assistants = [name for name, id_value in assistant_ids.items() if id_value]
+if configured_assistants:
+    logger.info(f"Found {len(configured_assistants)} configured astrology assistants: {', '.join(configured_assistants)}")
+else:
+    logger.warning("No astrology assistant IDs are configured - will use fallback content")
+
 # Fix DATABASE_URL if needed - strip any whitespace or newlines
 if 'DATABASE_URL' in os.environ:
     original_url = os.environ['DATABASE_URL']
@@ -392,6 +417,170 @@ def create_astrology_image(system_number, current_date, title, width=800, height
     
     return filename
 
+def get_assistant_id_for_system(position):
+    """
+    Get the OpenAI assistant ID for the given astrology system position
+    
+    Args:
+        position (int): The system position (1-8)
+        
+    Returns:
+        str: The assistant ID from environment variables or None if not found
+    """
+    # Map positions to environment variable names
+    system_env_map = {
+        1: 'EUROPEAN_ASTROLOGY_ASSISTANT_ID',
+        2: 'CHINESE_ASTROLOGY_ASSISTANT_ID',
+        3: 'INDIAN_ASTROLOGY_ASSISTANT_ID',
+        4: 'NUMEROLOGY_ASSISTANT_ID',
+        5: 'TAROT_ASSISTANT_ID',
+        6: 'LAL_KITAB_ASSISTANT_ID',  # Using Lal Kitab for Karmic astrology
+        7: 'JYOTISH_ASSISTANT_ID',    # Using Jyotish for Esoteric astrology
+        8: 'PLANETARY_ASTROLOGY_ASSISTANT_ID'
+    }
+    
+    # Get the environment variable name for this position
+    env_var = system_env_map.get(position)
+    if not env_var:
+        return None
+        
+    # Return the assistant ID from environment
+    return os.environ.get(env_var)
+
+def generate_horoscope_content(system_name, position, current_date):
+    """
+    Generate horoscope content using OpenAI Assistant API
+    
+    Args:
+        system_name (str): Name of the astrology system
+        position (int): The system position (1-8)
+        current_date: Current date for the horoscope
+        
+    Returns:
+        dict: A dictionary with title, content and summary
+    """
+    # Default fallback content in case the API call fails
+    date_str = current_date.strftime("%Y-%m-%d")
+    title = f"Гороскоп {system_name} на {date_str}"
+    
+    fallback_content = f"""
+    <p>Сьогодні зірки віщують важливі зміни. День сприятливий для початку нових проектів 
+    та налагодження стосунків. Зверніть увагу на своє здоров'я та не забувайте 
+    про відпочинок.</p>
+    <p>Можливі несподівані приємні новини в особистому житті. 
+    Фінансове становище стабільне, але варто утриматися від великих витрат.</p>
+    """
+    
+    fallback_summary = "Сприятливий день для важливих рішень та нових починань. Зірки на вашому боці!"
+    
+    # Get the assistant ID for this system
+    assistant_id = get_assistant_id_for_system(position)
+    
+    # If no assistant ID is configured, return fallback content
+    if not assistant_id:
+        logger.warning(f"No assistant ID configured for system {position}: {system_name}. Using fallback content.")
+        return {
+            "title": title,
+            "content": fallback_content,
+            "summary": fallback_summary
+        }
+    
+    try:
+        logger.info(f"Generating horoscope with assistant {assistant_id} for {system_name}")
+        
+        # Initialize OpenAI client
+        client = OpenAI()
+        
+        # Create a thread for the conversation
+        thread = client.beta.threads.create()
+        
+        # Format the date for the prompt
+        prompt_date = current_date.strftime("%d.%m.%Y")
+        
+        # Create a message for the assistant
+        client.beta.threads.messages.create(
+            thread_id=thread.id,
+            role="user",
+            content=f"Створи ґрунтовний гороскоп у системі {system_name} на {prompt_date}. "
+                    f"Включи усі 12 знаків зодіаку з корисними порадами для кожного знаку. "
+                    f"Додай загальну інформацію про астрологічні впливи на цей день."
+        )
+        
+        # Run the assistant
+        run = client.beta.threads.runs.create(
+            thread_id=thread.id,
+            assistant_id=assistant_id
+        )
+        
+        # Poll for completion
+        for attempt in range(30):  # Timeout after 30 attempts
+            time.sleep(3)  # Check every 3 seconds
+            
+            run_status = client.beta.threads.runs.retrieve(
+                thread_id=thread.id,
+                run_id=run.id
+            )
+            
+            if run_status.status == 'completed':
+                # Get the response
+                messages = client.beta.threads.messages.list(thread_id=thread.id)
+                generated_content = ""
+                
+                # Extract content from the first assistant message
+                for msg in messages.data:
+                    if msg.role == "assistant":
+                        for content_item in msg.content:
+                            if content_item.type == "text":
+                                generated_content = content_item.text.value
+                                break
+                        break
+                
+                # Clean up the content for HTML display
+                generated_content = generated_content.strip()
+                
+                # Basic HTML wrapping if needed
+                if not generated_content.startswith("<"):
+                    paragraphs = generated_content.split("\n\n")
+                    formatted_content = ""
+                    for p in paragraphs:
+                        if p.strip():
+                            formatted_content += f"<p>{p.strip()}</p>\n"
+                    generated_content = formatted_content
+                
+                # Extract the first paragraph or portion for summary
+                # Remove HTML tags for summary text
+                text_content = re.sub('<[^<]+?>', '', generated_content)
+                summary_text = text_content.strip().split('\n')[0][:200]
+                if len(summary_text) >= 197:
+                    summary_text = summary_text[:197] + "..."
+                
+                logger.info(f"Successfully generated horoscope content for {system_name}")
+                
+                return {
+                    "title": title,
+                    "content": generated_content,
+                    "summary": summary_text
+                }
+                
+            elif run_status.status == 'failed':
+                logger.error(f"Assistant run failed for {system_name}: {run_status.last_error}")
+                break
+                
+            # Continue polling
+        
+        # If we get here, the assistant did not complete in time
+        logger.warning(f"Assistant run timed out for {system_name}. Using fallback content.")
+        
+    except Exception as e:
+        logger.error(f"Error generating horoscope for {system_name}: {str(e)}")
+    
+    # Return fallback content if anything fails
+    return {
+        "title": title,
+        "content": fallback_content,
+        "summary": fallback_summary
+    }
+
 def generate_daily_horoscopes():
     """Generate daily horoscopes for all 8 astrology systems with complete replacement of old data"""
     logger.info("Initializing daily horoscope generator with image replacement mode")
@@ -430,16 +619,12 @@ def generate_daily_horoscopes():
                 
                 logger.info(f"Generating horoscope for system {position}: {system_name}")
                 
-                # Sample horoscope content - in production replace with actual API call
-                title = f"Гороскоп {system_name} на {date_str}"
-                content = f"""
-                <p>Сьогодні зірки віщують важливі зміни. День сприятливий для початку нових проектів 
-                та налагодження стосунків. Зверніть увагу на своє здоров'я та не забувайте 
-                про відпочинок.</p>
-                <p>Можливі несподівані приємні новини в особистому житті. 
-                Фінансове становище стабільне, але варто утриматися від великих витрат.</p>
-                """
-                summary = "Сприятливий день для важливих рішень та нових починань. Зірки на вашому боці!"
+                # Generate horoscope content using OpenAI assistant
+                horoscope_data = generate_horoscope_content(system_name, position, current_date)
+                
+                title = horoscope_data["title"]
+                content = horoscope_data["content"]
+                summary = horoscope_data["summary"]
                 
                 # Create the image
                 image_filename = create_astrology_image(position, current_date, title)
