@@ -18,6 +18,13 @@ import sys
 import re
 import logging
 import glob
+
+# Import ephemeris module
+try:
+    from ephemeris import calculate_planet_positions, get_ephemeris_report
+    EPHEMERIS_AVAILABLE = True
+except ImportError:
+    EPHEMERIS_AVAILABLE = False
 import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -377,7 +384,7 @@ def create_astrology_image(system_number, current_date, title, width=800, height
         moon_x = center_x + radius + moon_radius
         moon_y = center_y - radius // 2
         draw.ellipse(
-            (moon_x-moon_radius, moon_y-moon_radius, 
+            (moon_x-moon_radius, moon_y-moon-radius, 
              moon_x+moon_radius, moon_y+moon_radius),
             fill=(240, 240, 200)
         )
@@ -429,23 +436,45 @@ def get_assistant_id_for_system(position):
     """
     # Map positions to environment variable names
     system_env_map = {
-        1: 'EUROPEAN_ASTROLOGY_ASSISTANT_ID',
-        2: 'CHINESE_ASTROLOGY_ASSISTANT_ID',
-        3: 'INDIAN_ASTROLOGY_ASSISTANT_ID',
-        4: 'NUMEROLOGY_ASSISTANT_ID',
-        5: 'TAROT_ASSISTANT_ID',
-        6: 'LAL_KITAB_ASSISTANT_ID',  # Using Lal Kitab for Karmic astrology
-        7: 'JYOTISH_ASSISTANT_ID',    # Using Jyotish for Esoteric astrology
-        8: 'PLANETARY_ASTROLOGY_ASSISTANT_ID'
+        1: 'EUROPEAN_ASTROLOGY_ASSISTANT_ID',    # Західна астрологія
+        2: 'CHINESE_ASTROLOGY_ASSISTANT_ID',     # Китайська астрологія
+        3: 'INDIAN_ASTROLOGY_ASSISTANT_ID',      # Ведична астрологія
+        4: 'NUMEROLOGY_ASSISTANT_ID',            # Нумерологія
+        5: 'TAROT_ASSISTANT_ID',                 # Таро
+        6: 'KARMIC_ASTROLOGY_ASSISTANT_ID',      # Кармічна астрологія 
+        7: 'ESOTERIC_ASTROLOGY_ASSISTANT_ID',    # Езотерична астрологія
+        8: 'PREDICTIVE_ASTROLOGY_ASSISTANT_ID'   # Світла прогностика
+    }
+    
+    # Fallbacks for systems that might use different environment variables
+    fallbacks = {
+        1: ['WESTERN_ASTROLOGY_ASSISTANT_ID', 'EUROPEAN_ASTROLOGY_ASSISTANT_ID'],
+        6: ['LAL_KITAB_ASSISTANT_ID', 'KARMIC_ASTROLOGY_ASSISTANT_ID'],
+        7: ['JYOTISH_ASSISTANT_ID', 'ESOTERIC_ASTROLOGY_ASSISTANT_ID'],
+        8: ['PLANETARY_ASTROLOGY_ASSISTANT_ID', 'PREDICTIVE_ASTROLOGY_ASSISTANT_ID', 'LIGHT_ASTROLOGY_ASSISTANT_ID', 'ASTROLOGY_FORECASTING_ASSISTANT_ID', 'FORECASTING_ASSISTANT_ID']
     }
     
     # Get the environment variable name for this position
     env_var = system_env_map.get(position)
     if not env_var:
         return None
-        
-    # Return the assistant ID from environment
-    return os.environ.get(env_var)
+    
+    # Try to get the assistant ID from the primary environment variable
+    assistant_id = os.environ.get(env_var)
+    if assistant_id:
+        return assistant_id
+    
+    # If not found and we have fallbacks for this position, try them
+    if position in fallbacks:
+        for fallback_var in fallbacks[position]:
+            fallback_id = os.environ.get(fallback_var)
+            if fallback_id:
+                logger.info(f"Using fallback assistant ID for position {position} from {fallback_var}")
+                return fallback_id
+    
+    # If still not found, log a warning
+    logger.warning(f"No assistant ID found for position {position} ({env_var})")
+    return None
 
 def generate_horoscope_content(system_name, position, current_date):
     """
@@ -497,6 +526,19 @@ def generate_horoscope_content(system_name, position, current_date):
         # Format the date for the prompt
         prompt_date = current_date.strftime("%d.%m.%Y")
         
+        # Generate ephemeris data if available
+        ephemeris_info = ""
+        if EPHEMERIS_AVAILABLE:
+            try:
+                # Calculate planet positions for the horoscope date
+                logger.info(f"Calculating ephemeris data for {prompt_date}")
+                ephemeris_data = calculate_planet_positions(current_date)
+                ephemeris_text = get_ephemeris_report(current_date, format='text')
+                ephemeris_info = f"\n\nАстрономічні дані на {prompt_date}:\n{ephemeris_text}"
+                logger.info(f"Successfully calculated ephemeris data for {prompt_date}")
+            except Exception as e:
+                logger.error(f"Error calculating ephemeris data: {str(e)}")
+        
         # Create a message for the assistant
         client.beta.threads.messages.create(
             thread_id=thread.id,
@@ -504,6 +546,7 @@ def generate_horoscope_content(system_name, position, current_date):
             content=f"Створи ґрунтовний гороскоп у системі {system_name} на {prompt_date}. "
                     f"Включи усі 12 знаків зодіаку з корисними порадами для кожного знаку. "
                     f"Додай загальну інформацію про астрологічні впливи на цей день."
+                    f"{ephemeris_info}"
         )
         
         # Run the assistant
@@ -637,9 +680,9 @@ def generate_daily_horoscopes():
                     if not block:
                         logger.info(f"Creating new block for position {position}")
                         block = BlogBlock(
-                            title=title,
+                            title=truncate_string_safe(title),
                             content=content,
-                            summary=summary,
+                            summary=truncate_string_safe(summary),
                             position=position,
                             is_active=True,
                             created_at=datetime.utcnow(),
@@ -652,23 +695,24 @@ def generate_daily_horoscopes():
                         # Store old image filename for cleanup
                         old_image = block.featured_image
                         
-                        # Update basic fields using ORM
-                        block.title = title
+                        # Update basic fields using ORM, with truncation for database limits
+                        block.title = truncate_string_safe(title)
                         block.content = content
-                        block.summary = summary
+                        block.summary = truncate_string_safe(summary)
                         block.updated_at = datetime.utcnow()
                         block.featured_image = image_filename
-                          # Update multi-language fields - Ukrainian is default
+                        
+                        # Update multi-language fields - Ukrainian is default
                         # Use hasattr for safety
                         if 'title_ua' in columns and hasattr(block, 'title_ua'):
-                            block.title_ua = title
+                            block.title_ua = truncate_string_safe(title)
                             
                         if 'content_ua' in columns and hasattr(block, 'content_ua'):
                             block.content_ua = content
                             
                         if 'summary_ua' in columns and hasattr(block, 'summary_ua'):
-                            block.summary_ua = summary
-                            
+                            block.summary_ua = truncate_string_safe(summary)
+                        
                         # Translate to other languages if enabled
                         use_translations = bool(os.getenv('USE_TRANSLATIONS', 'true').lower() == 'true')
                         
@@ -697,7 +741,9 @@ def generate_daily_horoscopes():
                                         # Set title based on language
                                         title_field = f"title_{lang_code}"
                                         if title_field in columns and hasattr(block, title_field):
-                                            setattr(block, title_field, title_result.get('content'))
+                                            # Truncate title to fit in database field
+                                            translated_title = truncate_string_safe(title_result.get('content'))
+                                            setattr(block, title_field, translated_title)
                                     
                                     # Translate summary if it exists
                                     if summary:
@@ -706,7 +752,9 @@ def generate_daily_horoscopes():
                                             # Set summary based on language
                                             summary_field = f"summary_{lang_code}"
                                             if summary_field in columns and hasattr(block, summary_field):
-                                                setattr(block, summary_field, summary_result.get('content'))
+                                                # Truncate summary to fit in database field
+                                                translated_summary = truncate_string_safe(summary_result.get('content'))
+                                                setattr(block, summary_field, translated_summary)
                             else:
                                 logger.warning("Translation service not available - skipping translations")
                     
@@ -731,6 +779,29 @@ def generate_daily_horoscopes():
     except Exception as e:
         logger.error(f"Error in horoscope generation: {str(e)}")
         return False
+
+def truncate_string_safe(value, max_length=255):
+    """
+    Safely truncate a string to the specified maximum length
+    
+    Args:
+        value (str): The string to truncate
+        max_length (int): The maximum length of the string (default: 255 for varchar fields)
+        
+    Returns:
+        str: The truncated string
+    """
+    if value is None:
+        return value
+        
+    if not isinstance(value, str):
+        value = str(value)
+        
+    if len(value) <= max_length:
+        return value
+        
+    logger.warning(f"Truncating string from {len(value)} to {max_length} characters")
+    return value[:max_length]
 
 if __name__ == "__main__":
     # Run generator with replacement mode
