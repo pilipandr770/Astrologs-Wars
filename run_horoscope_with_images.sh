@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Running daily horoscope generator with images..."
-python daily_horoscope_with_images.py
+echo "Running enhanced daily horoscope generator with improved images..."
+python daily_horoscope_replace.py
 echo "Done."
 read -p "Press Enter to exit"

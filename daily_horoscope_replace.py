@@ -1,6 +1,15 @@
 """
 Улучшенный скрипт для ежедневной генерации гороскопов с интегрированной генерацией изображений.
 Заменяет старые гороскопы вместо добавления новых и очищает неиспользуемые изображения.
+
+Последнее обновление: 25.06.2025
+- Добавлен автоматический перевод гороскопов на английский, немецкий и русский языки
+- Добавлена генерация изображений с помощью DALL-E 3
+- Созданы уникальные промты для каждой астрологической системы
+- Реализован механизм автоматического переключения на локальную генерацию, если DALL-E недоступен
+- Добавлены уникальные фоны для каждой астрологической системы
+- Добавлены кольца планет и спутники для разных систем
+- Добавлены названия астрологических систем в изображения
 """
 import os
 import time
@@ -9,6 +18,7 @@ import sys
 import re
 import logging
 import glob
+import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from urllib.parse import urlparse
@@ -16,6 +26,9 @@ from sqlalchemy import inspect, text, delete
 from PIL import Image, ImageDraw, ImageFont
 import random
 import uuid
+import io
+from openai import OpenAI
+from translator import HoroscopeTranslator
 
 # Configure logging first
 logging.basicConfig(
@@ -108,10 +121,117 @@ def cleanup_old_horoscope_images(current_date, keep_positions=None):
     logger.info(f"Cleaned up {len(deleted_files)} old horoscope images")
     return deleted_files
 
+def generate_dalle_image(system_name, title, current_date, upload_dir, filename, width=1024, height=1024):
+    """
+    Generate an image using DALL-E 3 for the specific astrology system
+    
+    Args:
+        system_name: Name of the astrology system
+        title: Title of the horoscope
+        current_date: Current date for context
+        upload_dir: Directory to save the image
+        filename: Filename to save as
+        width/height: Image dimensions
+        
+    Returns:
+        Success status and filename if successful
+    """
+    try:
+        # Initialize OpenAI client
+        client = OpenAI()
+        
+        # Date info for the prompt
+        date_str = current_date.strftime("%d %B %Y")
+        
+        # System-specific prompts
+        system_prompts = {
+            "European Astrology": f"Create a mystical, cosmic image representing Western/European astrology for {date_str}. "
+                                 f"Include zodiac symbols subtly arranged in a celestial pattern with stars and planets. "
+                                 f"Use deep blues and purples with gold accents. Make it look professional and elegant "
+                                 f"for a horoscope website. No text overlay.",
+                                 
+            "Chinese Astrology": f"Create an artistic representation of Chinese astrology for {date_str}. "
+                               f"Include subtle elements of the Chinese zodiac animals, yin-yang symbols, and "
+                               f"traditional Chinese cosmic imagery. Use rich reds, golds and deep purples. "
+                               f"Style should be elegant and mystical. No text overlay.",
+                               
+            "Indian Astrology": f"Create a beautiful Vedic/Indian astrology image for {date_str}. "
+                              f"Include subtle imagery of Vedic astrology symbols, cosmic elements, and "
+                              f"traditional Indian spiritual imagery. Use warm oranges, deep blues and gold accents. "
+                              f"Make it look professional for a horoscope website. No text overlay.",
+                              
+            "Lal Kitab": f"Create a mystical image representing Lal Kitab astrology for {date_str}. "
+                       f"Include subtle elements of planets, karma symbols, and remedies in a "
+                       f"cosmic arrangement. Use deep reds, greens, and gold colors. "
+                       f"Style should be elegant and mystical. No text overlay.",
+                       
+            "Jyotish": f"Create an artistic cosmic image representing Jyotish astrology for {date_str}. "
+                     f"Include subtle planetary symbols, stars, and traditional Vedic spiritual elements "
+                     f"arranged in a celestial pattern. Use deep purples, blues and gold accents. "
+                     f"Style should be professional and mystical. No text overlay.",
+                     
+            "Numerology": f"Create a mesmerizing image representing Numerology for {date_str}. "
+                        f"Include subtle numerical symbols, sacred geometry patterns, and cosmic elements. "
+                        f"Use blues, golds, and white colors. Style should be mathematical yet mystical. "
+                        f"No text overlay.",
+                        
+            "Tarot": f"Create a mystical image representing Tarot divination for {date_str}. "
+                   f"Include subtle imagery of cosmic elements, mystical symbols, and etheric energy. "
+                   f"No specific tarot cards should be identifiable. Use rich colors like deep blues, "
+                   f"purples, and gold accents. Style should be elegant and mysterious. No text overlay.",
+                   
+            "Planetary Astrology": f"Create a cosmic image representing Planetary astrology for {date_str}. "
+                                f"Include subtle imagery of planets, orbital paths, and celestial bodies "
+                                f"in a mystical arrangement. Use deep space blues and cosmic colors. "
+                                f"Style should be scientific yet mystical. No text overlay."
+        }
+        
+        # Get the specific prompt for this system or use a generic one
+        prompt = system_prompts.get(system_name, 
+            f"Create a professional, cosmic image representing {system_name} for horoscope dated {date_str}. "
+            f"Use mystical elements, stars, planets and cosmic imagery. No text overlay.")
+            
+        logger.info(f"Generating DALL-E image for {system_name} with prompt: {prompt[:100]}...")
+        
+        # Call DALL-E API
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            size=f"{width}x{height}",
+            quality="standard",
+            n=1
+        )
+        
+        # Get image URL
+        image_url = response.data[0].url
+        logger.info(f"Successfully generated DALL-E image for {system_name}")
+        
+        # Download the image
+        image_response = requests.get(image_url)
+        if image_response.status_code == 200:
+            # Save the image
+            full_path = os.path.join(upload_dir, filename)
+            with open(full_path, 'wb') as f:
+                f.write(image_response.content)
+                
+            logger.info(f"Saved DALL-E image for {system_name} as {filename}")
+            return True, filename
+        else:
+            logger.error(f"Failed to download DALL-E image: HTTP {image_response.status_code}")
+            return False, None
+            
+    except Exception as e:
+        logger.error(f"Error generating DALL-E image: {str(e)}")
+        return False, None
+
+
 def create_astrology_image(system_number, current_date, title, width=800, height=600):
     """
     Create an astrology-themed image with the given title
     Returns the filename of the created image (relative path for database storage)
+    
+    If OPENAI_API_KEY is set, will attempt to generate image with DALL-E 3
+    Otherwise, will fall back to local generation
     """
     # Ensure directory exists
     upload_dir = os.path.join(app.root_path, 'static', 'uploads', 'blog')
@@ -122,8 +242,57 @@ def create_astrology_image(system_number, current_date, title, width=800, height
     filename = f"astro_{system_number}_{date_str}.png"
     full_path = os.path.join(upload_dir, filename)
     
-    # Create a new image with a starry sky background
-    img = Image.new('RGB', (width, height), color=(25, 25, 45))
+    # Get the appropriate system name for this astrology system
+    astro_systems = [
+        "European Astrology", 
+        "Chinese Astrology",
+        "Indian Astrology",
+        "Lal Kitab",
+        "Jyotish",
+        "Numerology",
+        "Tarot",
+        "Planetary Astrology"
+    ]
+    system_name = astro_systems[(system_number-1) % len(astro_systems)]
+    
+    # Try to use DALL-E 3 if we have an API key and it's enabled
+    use_dalle = bool(os.getenv('OPENAI_API_KEY', '')) and bool(os.getenv('USE_DALLE_IMAGES', 'true').lower() == 'true')
+    
+    if use_dalle:
+        # Try generating with DALL-E
+        success, result = generate_dalle_image(
+            system_name=system_name,
+            title=title,
+            current_date=current_date,
+            upload_dir=upload_dir,
+            filename=filename,
+            width=1024,
+            height=1024
+        )
+        
+        if success:
+            # DALL-E generation successful
+            return filename
+            
+        logger.warning(f"DALL-E image generation failed for {system_name}, falling back to local generation")
+    
+    # Fallback to local image generation if DALL-E fails or is disabled
+    logger.info(f"Using local image generation for {system_name}")
+    
+    # Use different base colors for different astrology systems
+    base_colors = [
+        (25, 25, 45),    # Dark blue (European)
+        (45, 20, 40),    # Purple (Chinese)
+        (40, 30, 20),    # Brown (Indian)
+        (20, 40, 30),    # Dark green (Lal Kitab)
+        (35, 25, 35),    # Dark violet (Jyotish)
+        (45, 35, 20),    # Gold (Numerology)
+        (25, 35, 45),    # Blue (Tarot)
+        (30, 20, 40),    # Deep purple (Planetary)
+    ]
+    
+    color_index = (system_number - 1) % len(base_colors)
+    img = Image.new('RGB', (width, height), color=base_colors[color_index])
     draw = ImageDraw.Draw(img)
     
     # Add stars
@@ -151,22 +320,42 @@ def create_astrology_image(system_number, current_date, title, width=800, height
     # Add a central cosmic element (like a planet or moon)
     center_x, center_y = width // 2, height // 2
     radius = random.randint(40, 80)
-    
-    # Different colors for different astrology systems
+      # Different colors for different astrology systems with their names
     colors = [
-        (120, 100, 220),  # Purple-blue
-        (220, 100, 100),  # Red-pink
-        (100, 220, 180),  # Turquoise
-        (220, 180, 100),  # Gold
-        (170, 100, 220),  # Violet
-        (100, 170, 220),  # Blue
-        (220, 140, 80),   # Orange
-        (80, 220, 120)    # Green
+        (120, 100, 220),  # Purple-blue (European)
+        (220, 100, 100),  # Red-pink (Chinese)
+        (100, 220, 180),  # Turquoise (Indian)
+        (220, 180, 100),  # Gold (Lal Kitab)        (170, 100, 220),  # Violet (Jyotish)
+        (100, 170, 220),  # Blue (Numerology)
+        (220, 140, 80),   # Orange (Tarot)
+        (80, 220, 120)    # Green (Planetary)
     ]
     color_index = (system_number - 1) % len(colors)
     color = colors[color_index]
     
+    # Create more interesting planet/celestial object
     draw.ellipse((center_x-radius, center_y-radius, center_x+radius, center_y+radius), fill=color)
+    
+    # Add rings to some planets (for even-numbered systems)
+    if system_number % 2 == 0:
+        ring_width = radius * 1.8
+        ring_height = radius * 0.4
+        draw.ellipse(
+            (center_x-ring_width/2, center_y-ring_height/2, 
+             center_x+ring_width/2, center_y+ring_height/2), 
+            outline=(200, 200, 240), width=3
+        )
+    
+    # Add a small moon for odd-numbered systems
+    if system_number % 2 == 1:
+        moon_radius = radius // 4
+        moon_x = center_x + radius + moon_radius
+        moon_y = center_y - radius // 2
+        draw.ellipse(
+            (moon_x-moon_radius, moon_y-moon_radius, 
+             moon_x+moon_radius, moon_y+moon_radius),
+            fill=(240, 240, 200)
+        )
     
     # Try to load a font, use default if not available
     try:
@@ -179,15 +368,27 @@ def create_astrology_image(system_number, current_date, title, width=800, height
     # Add title text
     text_width = draw.textlength(title, font=font)
     draw.text(((width-text_width)//2, height-100), title, fill=(255, 255, 255), font=font)
+      # Get system name based on system_number
+    astro_systems = [
+        "European Astrology", 
+        "Chinese Astrology",
+        "Indian Astrology",
+        "Lal Kitab",
+        "Jyotish",
+        "Numerology",
+        "Tarot",
+        "Planetary Astrology"
+    ]
+    system_name = astro_systems[(system_number-1) % len(astro_systems)]
     
-    # Add the word "Astrology" at the bottom
-    subtitle = "Astrological Forecast"
+    # Add the system name at the bottom
+    subtitle = system_name
     subtitle_width = draw.textlength(subtitle, font=small_font)
     draw.text(((width-subtitle_width)//2, height-50), subtitle, fill=(200, 200, 255), font=small_font)
     
     # Save the image
     img.save(full_path)
-    logger.info(f"Created image for system {system_number}: {filename}")
+    logger.info(f"Created image for system {system_number} ({system_name}): {filename}")
     
     return filename
 
@@ -272,8 +473,7 @@ def generate_daily_horoscopes():
                         block.summary = summary
                         block.updated_at = datetime.utcnow()
                         block.featured_image = image_filename
-                        
-                        # Update multi-language fields
+                          # Update multi-language fields - Ukrainian is default
                         # Use hasattr for safety
                         if 'title_ua' in columns and hasattr(block, 'title_ua'):
                             block.title_ua = title
@@ -283,6 +483,47 @@ def generate_daily_horoscopes():
                             
                         if 'summary_ua' in columns and hasattr(block, 'summary_ua'):
                             block.summary_ua = summary
+                            
+                        # Translate to other languages if enabled
+                        use_translations = bool(os.getenv('USE_TRANSLATIONS', 'true').lower() == 'true')
+                        
+                        if use_translations:
+                            # Initialize the translator
+                            translator = HoroscopeTranslator()
+                            
+                            # Only proceed if translation service is available
+                            if translator.is_available():
+                                # Translate content for each supported language
+                                for lang_code in ['en', 'de', 'ru']:
+                                    logger.info(f"Translating content to {lang_code} for block {position}")
+                                    
+                                    # Translate content
+                                    content_result = translator.translate_content(content, lang_code)
+                                    if content_result.get('success'):
+                                        # Set content based on language
+                                        content_field = f"content_{lang_code}"
+                                        if content_field in columns and hasattr(block, content_field):
+                                            setattr(block, content_field, content_result.get('content'))
+                                            logger.info(f"Successfully translated content to {lang_code}")
+                                        
+                                    # Translate title
+                                    title_result = translator.translate_content(title, lang_code)
+                                    if title_result.get('success'):
+                                        # Set title based on language
+                                        title_field = f"title_{lang_code}"
+                                        if title_field in columns and hasattr(block, title_field):
+                                            setattr(block, title_field, title_result.get('content'))
+                                    
+                                    # Translate summary if it exists
+                                    if summary:
+                                        summary_result = translator.translate_content(summary, lang_code)
+                                        if summary_result.get('success'):
+                                            # Set summary based on language
+                                            summary_field = f"summary_{lang_code}"
+                                            if summary_field in columns and hasattr(block, summary_field):
+                                                setattr(block, summary_field, summary_result.get('content'))
+                            else:
+                                logger.warning("Translation service not available - skipping translations")
                     
                     # Commit changes for this block
                     db.session.commit()

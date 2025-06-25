@@ -16,6 +16,12 @@
         value: 0x917544120060Feb4571CdB14dBCC1e4d8005c218
       - key: PYTHONUNBUFFERED
         value: 'true'
+      # DALL-E image generation setting (true/false)
+      - key: USE_DALLE_IMAGES
+        value: "true"
+      # Translation setting (true/false)
+      - key: USE_TRANSLATIONS
+        value: "true"
       # OpenAI API key
       - key: OPENAI_API_KEY
         sync: false
@@ -58,6 +64,12 @@
     envVars:
       - key: DATABASE_URL
         value: "postgresql://ittoken_db_user:Xm98VVSZv7cMJkopkdWRkgvZzC7Aly42@dpg-d0visga4d50c73ekmu4g-a.oregon-postgres.render.com:5432/astro_blog_db"
+      # DALL-E image generation setting (true/false)
+      - key: USE_DALLE_IMAGES
+        value: "true"
+      # Translation setting (true/false)
+      - key: USE_TRANSLATIONS
+        value: "true"
       # OpenAI API key
       - key: OPENAI_API_KEY
         sync: false
